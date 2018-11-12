@@ -275,7 +275,7 @@ class World(object):
         self.screen_width, self.screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
         self.scale_factor = 0.07901234567901234 * pygame.display.Info().current_h / TILESET_SIDELENGTH
         self.tileset_new_sidelength = int(TILESET_SIDELENGTH * self.scale_factor)
-        self.number_of_spots = int(self.screen_width / self.tileset_new_sidelength)
+        self.number_of_spots = self.screen_width // self.tileset_new_sidelength
         pos_y = self.screen_height - self.tileset_new_sidelength
         for x in range(ceil(self.screen_width / self.tileset_new_sidelength)):
             pos_x = x * self.tileset_new_sidelength
@@ -293,7 +293,7 @@ class World(object):
     def create_platforms(self, pos_y, difficulty=1):
         # note: player can jump to a height of two platforms
         safety = -1
-        # self.number_of_spots = int(self.screen_width / self.tileset_new_sidelength)
+        # self.number_of_spots = self.screen_width // self.tileset_new_sidelength
         # note: spaces should be at 1.5x to 3x a tileset_new_sidelength
         for x in range(self.screen_width):
             if random.random() <= self.P_PLATFORM and x > safety:
