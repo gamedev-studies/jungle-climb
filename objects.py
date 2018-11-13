@@ -24,11 +24,17 @@ class Player(pygame.sprite.Sprite):
     animation_frame = 'idle'
 
     # sprite paths
-    idle_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/idle outline.png'
-    jump_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/jump outline.png'
-    landing_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/landing outline.png'
-    mid_air_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/mid air outline.png'
-    run_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/run outline.png'
+    # idle_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/idle outline.png'
+    # jump_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/jump outline.png'
+    # landing_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/landing outline.png'
+    # mid_air_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/mid air outline.png'
+    # run_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/run outline.png'
+
+    idle_sprite_path = 'Jungle Asset Pack/Character/sprites/idle.png'
+    jump_sprite_path = 'Jungle Asset Pack/Character/sprites/jump.png'
+    landing_sprite_path = 'Jungle Asset Pack/Character/sprites/landing.png'
+    mid_air_sprite_path = 'Jungle Asset Pack/Character/sprites/mid air.png'
+    run_sprite_path = 'Jungle Asset Pack/Character/sprites/run.png'
 
     @staticmethod
     def scale_image(image: pygame.Surface, scale_factor) -> pygame.Surface:
@@ -59,12 +65,12 @@ class Player(pygame.sprite.Sprite):
         self.GRAVITY_CONSTANT = -0.05 * self.JUMP_SPEED
         # print(self.JUMP_SPEED)
         # print(self.GRAVITY_CONSTANT)
-        scale_factor = current_h * self.PERCENT_OF_SCREEN_HEIGHT / 35
-
+        # 35 is the idle height for outline, 34 is for no outline
+        scale_factor = current_h * self.PERCENT_OF_SCREEN_HEIGHT / 34
         idle_images_right = []
         idle_images_left = []
         self.idle_images = [idle_images_right, idle_images_left]
-        for image in extract_images(self.idle_sprite_path, 21):
+        for image in extract_images(self.idle_sprite_path, 19):  # 21 with outline, 19 without
             image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
 
             image = self.scale_image(image, scale_factor)
@@ -82,7 +88,7 @@ class Player(pygame.sprite.Sprite):
         mid_air_images_right = []
         mid_air_images_left = []
         self.mid_air_images = [mid_air_images_right, mid_air_images_left]
-        for image in extract_images(self.mid_air_sprite_path, 22):
+        for image in extract_images(self.mid_air_sprite_path, 20):  # 22 with outline , 20 without
             image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
             image = self.scale_image(image, scale_factor)
             mid_air_images_right.append(image)
@@ -91,7 +97,7 @@ class Player(pygame.sprite.Sprite):
         run_images_right = []
         run_images_left = []
         self.run_images = [run_images_right, run_images_left]
-        for image in extract_images(self.run_sprite_path, 23):
+        for image in extract_images(self.run_sprite_path, 21):  # 23 with outline, 21 without
             image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
             image = self.scale_image(image, scale_factor)
             run_images_right.append(image)
