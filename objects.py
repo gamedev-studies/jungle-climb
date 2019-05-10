@@ -10,8 +10,16 @@ from extracter import *
 def load_image(image):
     return pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
 
-def scale_image(image, new_width, new_height):
-    return pygame.transform.scale(image, (new_width, new_height))
+
+def scale_image(image: pygame.Surface, scale_factor) -> pygame.Surface:
+    """
+    Scales and returns the given image
+    :param image: the original pygame.Surface
+    :param scale_factor: how much to scale the image by
+    :return: the scaled image
+    """
+    width, height = image.get_rect().size[0], image.get_rect().size[1]
+    return pygame.transform.scale(image, (int(width * scale_factor), int(height * scale_factor)))
 
 
 class Player(pygame.sprite.Sprite):
@@ -28,30 +36,68 @@ class Player(pygame.sprite.Sprite):
     speed = [0, 0]
 
     animation_frame = 'idle'
-
-    # sprite paths
-    # idle_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/idle outline.png'
-    # jump_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/jump outline.png'
-    # landing_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/landing outline.png'
-    # mid_air_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/mid air outline.png'
-    # run_sprite_path = 'Jungle Asset Pack/Character with outline/sprites/run outline.png'
-
     idle_sprite_path = 'Jungle Asset Pack/Character/sprites/idle.png'
     jump_sprite_path = 'Jungle Asset Pack/Character/sprites/jump.png'
     landing_sprite_path = 'Jungle Asset Pack/Character/sprites/landing.png'
     mid_air_sprite_path = 'Jungle Asset Pack/Character/sprites/mid air.png'
     run_sprite_path = 'Jungle Asset Pack/Character/sprites/run.png'
 
-    @staticmethod
-    def scale_image(image: pygame.Surface, scale_factor) -> pygame.Surface:
-        """
-        Scales and returns the given image
-        :param image: the original pygame.Surface
-        :param scale_factor: how much to scale the image by
-        :return: the scaled image
-        """
-        width, height = image.get_rect().size[0], image.get_rect().size[1]
-        return pygame.transform.scale(image, (int(width * scale_factor), int(height * scale_factor)))
+    current_h = pygame.display.Info().current_h
+    current_w = pygame.display.Info().current_w
+    # if pos is None: pos = (0.05 * info_object.current_w, 0.07901234567901234 * info_object.current_h)
+
+    # 35 is the height of the sprite in pixels
+    # todo: set running speed and jump height based on screen width and height
+    RUNNING_SPEED = round(current_w / 200)
+    JUMP_SPEED = (round(current_h / -40.5))
+    GRAVITY_CONSTANT = -0.05 * JUMP_SPEED
+    # print(self.JUMP_SPEED)
+    # print(self.GRAVITY_CONSTANT)
+    # 35 is the idle height for outline, 34 is for no outline
+    scale_factor = current_h * PERCENT_OF_SCREEN_HEIGHT / 34
+    idle_images_right = []
+    idle_images_left = []
+    idle_images = [idle_images_right, idle_images_left]
+    for image in extract_images(idle_sprite_path, 19):  # 21 with outline, 19 without
+        image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
+
+        image = scale_image(image, scale_factor)
+        idle_images_right.append(image)
+        idle_images_left.append(pygame.transform.flip(image, True, False))
+
+    jump_image = pygame.image.load(jump_sprite_path).convert_alpha()
+    jump_image = scale_image(jump_image, scale_factor)
+    jump_images = [jump_image, pygame.transform.flip(jump_image, True, False)]
+
+    landing_image = pygame.image.load(landing_sprite_path).convert_alpha()
+    landing_image = scale_image(landing_image, scale_factor)
+    landing_images = [landing_image, pygame.transform.flip(landing_image, True, False)]
+
+    mid_air_images_right = []
+    mid_air_images_left = []
+    mid_air_images = [mid_air_images_right, mid_air_images_left]
+    for image in extract_images(mid_air_sprite_path, 20):  # 22 with outline , 20 without
+        image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
+        image = scale_image(image, scale_factor)
+        mid_air_images_right.append(image)
+        mid_air_images_left.append(pygame.transform.flip(image, True, False))
+
+    run_images_right = []
+    run_images_left = []
+    run_images = [run_images_right, run_images_left]
+    for image in extract_images(run_sprite_path, 21):  # 23 with outline, 21 without
+        image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
+        image = scale_image(image, scale_factor)
+        run_images_right.append(image)
+        run_images_left.append(pygame.transform.flip(image, True, False))
+
+    # first percent is the grass percent of the tile (3/TILE_SIDELENGTH)
+    # second percent is the percent of screen height for a tile
+    GROUND_ADJUSTMENT = ceil(0.1111111111111111 * 0.07901234567901234 * current_h)
+
+    
+
+    
 
     def __init__(self, world, pos: tuple = None):
         """
@@ -60,68 +106,16 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         self.world = world
-        current_h = pygame.display.Info().current_h
-        current_w = pygame.display.Info().current_w
-        # if pos is None: pos = (0.05 * info_object.current_w, 0.07901234567901234 * info_object.current_h)
-
-        # 35 is the height of the sprite in pixels
-        # todo: set running speed and jump height based on screen width and height
-        self.RUNNING_SPEED = round(current_w / 200)
-        self.JUMP_SPEED = (round(current_h / -40.5))
-        self.GRAVITY_CONSTANT = -0.05 * self.JUMP_SPEED
-        # print(self.JUMP_SPEED)
-        # print(self.GRAVITY_CONSTANT)
-        # 35 is the idle height for outline, 34 is for no outline
-        scale_factor = current_h * self.PERCENT_OF_SCREEN_HEIGHT / 34
-        idle_images_right = []
-        idle_images_left = []
-        self.idle_images = [idle_images_right, idle_images_left]
-        for image in extract_images(self.idle_sprite_path, 19):  # 21 with outline, 19 without
-            image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
-
-            image = self.scale_image(image, scale_factor)
-            idle_images_right.append(image)
-            idle_images_left.append(pygame.transform.flip(image, True, False))
-
-        jump_image = pygame.image.load(self.jump_sprite_path).convert_alpha()
-        jump_image = self.scale_image(jump_image, scale_factor)
-        self.jump_images = [jump_image, pygame.transform.flip(jump_image, True, False)]
-
-        landing_image = pygame.image.load(self.landing_sprite_path).convert_alpha()
-        landing_image = self.scale_image(landing_image, scale_factor)
-        self.landing_images = [landing_image, pygame.transform.flip(landing_image, True, False)]
-
-        mid_air_images_right = []
-        mid_air_images_left = []
-        self.mid_air_images = [mid_air_images_right, mid_air_images_left]
-        for image in extract_images(self.mid_air_sprite_path, 20):  # 22 with outline , 20 without
-            image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
-            image = self.scale_image(image, scale_factor)
-            mid_air_images_right.append(image)
-            mid_air_images_left.append(pygame.transform.flip(image, True, False))
-
-        run_images_right = []
-        run_images_left = []
-        self.run_images = [run_images_right, run_images_left]
-        for image in extract_images(self.run_sprite_path, 21):  # 23 with outline, 21 without
-            image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
-            image = self.scale_image(image, scale_factor)
-            run_images_right.append(image)
-            run_images_left.append(pygame.transform.flip(image, True, False))
-
-        # first percent is the grass percent of the tile (3/TILE_SIDELENGTH)
-        # second percent is the percent of screen height for a tile
-        self.GROUND_ADJUSTMENT = ceil(0.1111111111111111 * 0.07901234567901234 * current_h)
-
-        self.image: pygame.Surface = idle_images_right[0]
+        image: pygame.Surface = self.idle_images_right[0]
         # fixme: collision rect
-        self.rect: pygame.Rect = self.image.get_rect()
-        collide_width = self.rect.width - 8 * scale_factor
-        self.collide_rect: pygame.Rect = pygame.rect.Rect((0, 0), (collide_width, self.rect.height))
+        self.rect: pygame.Rect = image.get_rect()
+        collide_width = self.rect.width - 8 * self.scale_factor
+        collide_rect: pygame.Rect = pygame.rect.Rect((0, 0), (collide_width, self.rect.height))
         if pos is None:
-            pos = (0.05 * current_w, 0.92098765432098766 * current_h + self.GROUND_ADJUSTMENT)
+            pos = (0.05 * self.current_w, 0.92098765432098766 * self.current_h + self.GROUND_ADJUSTMENT)
         self.rect.bottomleft = pos
-        self.collide_rect.midbottom = self.rect.midbottom
+        collide_rect.midbottom = self.rect.midbottom
+
 
     def get_image(self, images: list, index: int = None) -> pygame.image:
         """
@@ -258,12 +252,12 @@ class Platform(pygame.sprite.Sprite):
     PERCENT_OF_SCREEN_HEIGHT = 0.07901234567901234
     side_length = TILESET_SIDELENGTH = 27
     scale_factor = PERCENT_OF_SCREEN_HEIGHT * pygame.display.Info().current_h / TILESET_SIDELENGTH
-    side_length = int(side_length * scale_factor)
+    # side_length = int(side_length * scale_factor)
     images = [load_image(image) for image in extract_platforms()]
     print(side_length)
-    image_0 = pygame.transform.scale(images[0], (side_length, side_length))
-    image_1 = pygame.transform.scale(images[1], (side_length, side_length))
-    image_2 = pygame.transform.scale(images[2], (side_length, side_length))
+    image_0 = scale_image(images[0], scale_factor)
+    image_1 = scale_image(images[1], scale_factor)
+    image_2 = scale_image(images[2], scale_factor)
     images = [image_0, image_1, image_2]
     # images = [scale_image(image, side_length, side_length) for image in images]
     images = {'left': images[0], 'centre': images[1], 'right': images[2]}
