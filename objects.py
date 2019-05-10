@@ -44,16 +44,11 @@ class Player(pygame.sprite.Sprite):
 
     current_h = pygame.display.Info().current_h
     current_w = pygame.display.Info().current_w
-    # if pos is None: pos = (0.05 * info_object.current_w, 0.07901234567901234 * info_object.current_h)
 
-    # 35 is the height of the sprite in pixels
-    # todo: set running speed and jump height based on screen width and height
     RUNNING_SPEED = round(current_w / 200)
-    JUMP_SPEED = (round(current_h / -40.5))
+    JUMP_SPEED = round(current_h / -40.5)
     GRAVITY_CONSTANT = -0.05 * JUMP_SPEED
-    # print(self.JUMP_SPEED)
-    # print(self.GRAVITY_CONSTANT)
-    # 35 is the idle height for outline, 34 is for no outline
+    # NOTE: 35 is the idle height for outline, 34 is for no outline
     scale_factor = current_h * PERCENT_OF_SCREEN_HEIGHT / 34
     idle_images_right = []
     idle_images_left = []
@@ -95,10 +90,6 @@ class Player(pygame.sprite.Sprite):
     # second percent is the percent of screen height for a tile
     GROUND_ADJUSTMENT = ceil(0.1111111111111111 * 0.07901234567901234 * current_h)
 
-    
-
-    
-
     def __init__(self, world, pos: tuple = None):
         """
         :param pos: (x, y) tuple where 0, 0 is the top left
@@ -106,16 +97,15 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         self.world = world
-        image: pygame.Surface = self.idle_images_right[0]
+        self.image: pygame.Surface = self.idle_images_right[0]
         # fixme: collision rect
-        self.rect: pygame.Rect = image.get_rect()
+        self.rect: pygame.Rect = self.image.get_rect()
         collide_width = self.rect.width - 8 * self.scale_factor
-        collide_rect: pygame.Rect = pygame.rect.Rect((0, 0), (collide_width, self.rect.height))
+        self.collide_rect: pygame.Rect = pygame.rect.Rect((0, 0), (collide_width, self.rect.height))
         if pos is None:
             pos = (0.05 * self.current_w, 0.92098765432098766 * self.current_h + self.GROUND_ADJUSTMENT)
         self.rect.bottomleft = pos
-        collide_rect.midbottom = self.rect.midbottom
-
+        self.collide_rect.midbottom = self.rect.midbottom
 
     def get_image(self, images: list, index: int = None) -> pygame.image:
         """
@@ -164,39 +154,35 @@ class Player(pygame.sprite.Sprite):
             self.speed[1] += self.GRAVITY_CONSTANT
             if self.speed[1] > 0 and self.animation_frame != f'mid-air down {self.facing_left}':
                 self.image = self.get_image(self.mid_air_images, 1)
-                # self.image = pygame.transform.flip(self.mid_air_images_right[1], self.FACING_LEFT, False)
                 self.animation_frame = f'mid-air down {self.facing_left}'
             elif 0 > self.speed[1] >= -12 and self.animation_frame != f'mid-air up {self.facing_left}':
                 self.image = self.get_image(self.mid_air_images, 0)
-                # self.image = pygame.transform.flip(self.mid_air_images_right[0], self.FACING_LEFT, False)
                 self.animation_frame = f'mid-air up {self.facing_left}'
 
     def update(self):
         self.gravity()
+        self.rect.y += self.speed[1]
+
+        platform_hit_list = pygame.sprite.spritecollide(self, self.world.platform_list, False)  # detect collisions
+        for platform in platform_hit_list:
+            if self.speed[1] > 0 and self.rect.bottom > platform.rect.top + self.GROUND_ADJUSTMENT:  # going down
+                self.rect.bottom = platform.rect.top + self.GROUND_ADJUSTMENT
+                self.speed[1] = 0
+            elif self.speed[1] < 0:  # going up
+                self.rect.top = platform.rect.bottom
+                self.speed[1] = 0
+
         self.rect.x += self.speed[0]
         platform_hit_list = pygame.sprite.spritecollide(self, self.world.platform_list, False)  # detect collisions
         for platform in platform_hit_list:
             if (self.speed[0] > 0 and
                     platform.rect.left < self.rect.right and
                     platform.rect.top + self.GROUND_ADJUSTMENT < self.rect.bottom):
-                self.rect.x = platform.rect.left  # going right
+                self.rect.right = platform.rect.left  # going right
             elif (self.speed[0] < 0 and
                   platform.rect.right > self.rect.left and
                   platform.rect.top + self.GROUND_ADJUSTMENT < self.rect.bottom):
-                self.rect.x = platform.rect.right  # going left
-
-        self.rect.y += self.speed[1]
-
-        platform_hit_list = pygame.sprite.spritecollide(self, self.world.platform_list, False)  # detect collisions
-        for platform in platform_hit_list:
-            if self.speed[1] > 0 and self.rect.bottom > platform.rect.top + self.GROUND_ADJUSTMENT:  # going down
-                # fixme
-                self.rect.bottom = platform.rect.top + self.GROUND_ADJUSTMENT
-                self.speed[1] = 0
-            elif self.speed[1] < 0:  # going up
-                # fixme
-                self.rect.top = platform.rect.bottom
-                self.speed[1] = 0
+                self.rect.left = platform.rect.right  # going left
         # if self.speed == [0, 0] and will_land and self.ON_GROUND:  # if standing still
         if self.speed == [0, 0]:  # if standing still
             self.update_idle()
@@ -239,7 +225,7 @@ class Player(pygame.sprite.Sprite):
 
     def jump(self):
         """ Called when user hits 'jump' button. """
-        # note: player can jump to a height of two platforms
+        #  player can jump to a height of two platforms
         if self.on_ground:
             self.image = self.get_image(self.jump_images)
             # self.image = pygame.transform.flip(self.jump_frame, self.FACING_LEFT, False)
@@ -250,11 +236,12 @@ class Player(pygame.sprite.Sprite):
 
 class Platform(pygame.sprite.Sprite):
     PERCENT_OF_SCREEN_HEIGHT = 0.07901234567901234
+    current_h = pygame.display.Info().current_h
+    GROUND_ADJUSTMENT = ceil(0.1111111111111111 * 0.07901234567901234 * current_h)
     side_length = TILESET_SIDELENGTH = 27
-    scale_factor = PERCENT_OF_SCREEN_HEIGHT * pygame.display.Info().current_h / TILESET_SIDELENGTH
+    scale_factor = PERCENT_OF_SCREEN_HEIGHT * current_h / TILESET_SIDELENGTH
     # side_length = int(side_length * scale_factor)
     images = [load_image(image) for image in extract_platforms()]
-    print(side_length)
     image_0 = scale_image(images[0], scale_factor)
     image_1 = scale_image(images[1], scale_factor)
     image_2 = scale_image(images[2], scale_factor)
@@ -267,10 +254,14 @@ class Platform(pygame.sprite.Sprite):
     def __init__(self, x, y, platform_type='centre'):
         super().__init__()
         # 16 is the height of the sprite in pixels
-        # TODO: this isn't the right calculation
         self.image = self.images[platform_type.lower()]
         self.rect = self.image.get_rect()
+        w, h = self.image.get_size()
+        w -= self.GROUND_ADJUSTMENT * 2
+        h -= self.GROUND_ADJUSTMENT
+        self.collide_rect = pygame.rect.Rect((0, 0), (w, h))
         self.rect.topleft = (x, y)
+        self.collide_rect.midbottom = self.rect.midbottom
 
 
 class World(object):
@@ -311,7 +302,8 @@ class World(object):
                     num_of_platforms = random.randint(5, 13)
                 else:
                     num_of_platforms = random.randint(3, 10)
-                safety = x + num_of_platforms * self.tileset_new_sidelength + random.choice([1.5, 2, 2.5]) * self.tileset_new_sidelength
+                safety = x + num_of_platforms * self.tileset_new_sidelength + random.choice(
+                    [1.5, 2, 2.5]) * self.tileset_new_sidelength
                 for y in range(num_of_platforms):
                     if y == 0: platform_type = 'left'
                     elif y == num_of_platforms - 1:  platform_type = 'right'
@@ -323,26 +315,26 @@ class World(object):
 
     def shift_world(self, shift_y):
         """For automated scrolling"""
-
+        remove_platforms = False
         platforms_to_remove = []
         farthest_y = self.screen_height
         # Go through all the sprite lists and shift
         self.player.rect.y += shift_y
+        self.player.collide_rect.y += shift_y
         for platform in self.platform_list:
             platform.rect.y += shift_y
+            platform.collide_rect.y += shift_y
             if platform.rect.y < farthest_y:
                 farthest_y = platform.rect.y
-            if platform.rect.top > self.screen_height + platform.rect.height:
+            if platform.rect.top > self.screen_height + 1.5 * platform.rect.height:
+                remove_platforms = True
                 platforms_to_remove.append(platform)
-        if platforms_to_remove:
-            self.platform_list.remove(platforms_to_remove)
+        if farthest_y > 0:
             self.create_platforms(farthest_y - self.tileset_new_sidelength * 3)
+        if remove_platforms:
+            self.platform_list.remove(platforms_to_remove)
+            platforms_to_remove.clear()
 
     def update(self):
         self.platform_list.update()
 
-# class Button(pygame.sprite.Sprite):
-#
-#     def __init__(self, x, y, width, height, callback, text, text_color=(0, 0, 0), image_normal=None, imagae_hover=None,
-#                  image_down=None):
-#         super().__init__()

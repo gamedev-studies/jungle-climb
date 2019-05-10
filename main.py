@@ -3,7 +3,8 @@ import sys
 import os
 from ctypes import windll
 
-from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE
+from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, MOUSEBUTTONDOWN, \
+    QUIT, KEYDOWN
 import pygame
 
 # TODO: fix pygame lag when platforms are spawning
@@ -11,7 +12,8 @@ import pygame
 # constants
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
-GREEN = 50, 205, 50
+# GREEN = 50, 205, 50
+GREEN = 40, 175, 99
 DARK_GREEN = 0, 128, 0
 
 LIGHT_BLUE = 0, 191, 255
@@ -130,18 +132,18 @@ def aa_filled_rounded_rect(rect, color, radius=0.4):
     return screen.blit(rectangle, pos)
 
 
-def button(text, x, y, w, h, inactive_colour, active_colour, action=None, text_colour=BLACK):
+def button(text, x, y, w, h, inactive_colour, active_colour, click, action=None, text_colour=BLACK):
     mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
     # focus = pygame.mouse.get_focused()
 
     if x < mouse[0] < x + w and y < mouse[1] < y + h:  # if mouse is hovering the button
         pygame.draw.rect(screen, active_colour, (x, y, w, h))
-        if click[0] == 1 and action is not None and pygame.time.get_ticks() - ticks > 100: action()
+        if click and action is not None and pygame.time.get_ticks() - ticks > 100: action()
     else:
         pygame.draw.rect(screen, inactive_colour, (x, y, w, h))
 
-    small_text = pygame.font.Font('freesansbold.ttf', 20)
+    small_text = pygame.font.Font('freesansbold.ttf', 25)
+    # small_text = pygame.font.Font('Fonts/Verdana.ttf', 25)
     text_surf, text_rect = text_objects(text, small_text, colour=text_colour)
     text_rect.center = (x + w / 2, y + h / 2)
     screen.blit(text_surf, text_rect)
@@ -149,7 +151,7 @@ def button(text, x, y, w, h, inactive_colour, active_colour, action=None, text_c
 
 def view_high_scores():
     screen.fill(WHITE)
-    large_text = pygame.font.Font('freesansbold.ttf', 115)
+    large_text = pygame.font.Font('Fonts/Verdana.ttf', 115)
     text_surf, text_rect = text_objects('High Scores', large_text)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
     screen.blit(text_surf, text_rect)
@@ -159,14 +161,18 @@ def view_high_scores():
     #     # todo: DISPLAY THESE SCORES
     #     pass
     while True:
+        click = False
         pressed_keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             alt_f4 = (event.type == pygame.KEYDOWN and event.key == pygame.K_F4
                       and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT]))
             if event.type == pygame.QUIT or alt_f4: sys.exit()
+            if event.type == MOUSEBUTTONDOWN:
+                click = True
 
-        button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 2 / 5,
-               button_width, button_height, BLUE, LIGHT_BLUE, action=main_menu, text_colour=BLACK)
+            button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 2 / 5,
+                   button_width, button_height, BLUE, LIGHT_BLUE, click, action=main_menu, text_colour=BLACK)
+
         # aa_filled_rounded_rect(((SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 2 / 5,
         #                         button_width, button_height), BLUE, 0.9)
         pygame.display.update()
@@ -178,8 +184,9 @@ def main_menu():
     on_main_menu = True
     # todo: change font colour
     # todo: fix  menu flows (stop spawning them)
+    # screen.fill((200, 200, 200))
     screen.fill(WHITE)
-    large_text = pygame.font.Font('freesansbold.ttf', 115)
+    large_text = pygame.font.Font('Fonts/Verdana.ttf', 115)
     text_surf, text_rect = text_objects('Jungle Climb', large_text)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
     screen.blit(text_surf, text_rect)
@@ -187,17 +194,20 @@ def main_menu():
     button_height = SCREEN_HEIGHT * 0.06172839506172839
     ticks = pygame.time.get_ticks()
     while on_main_menu:
+        click = False
         pressed_keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             alt_f4 = (event.type == pygame.KEYDOWN and event.key == pygame.K_F4
                       and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT]))
             if event.type == pygame.QUIT or alt_f4: sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                click = True
         button('S T A R T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, action=game, text_colour=BLACK)
+               button_width, button_height, BLUE, LIGHT_BLUE, click, action=game, text_colour=BLACK)
         button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, action=view_high_scores, text_colour=BLACK)
+               button_width, button_height, BLUE, LIGHT_BLUE, click, action=view_high_scores, text_colour=BLACK)
         button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, action=quit, text_colour=BLACK)
+               button_width, button_height, BLUE, LIGHT_BLUE, click, action=quit, text_colour=BLACK)
         # aa_filled_rounded_rect(((SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 2 / 5,
         #                         button_width, button_height), BLUE, 0.9)
         pygame.display.update()
@@ -218,7 +228,7 @@ def pause_menu(player):
     background.fill((255, 255, 255, 160))
     screen.blit(background, (0, 0))
 
-    large_text = pygame.font.Font('freesansbold.ttf', 115)
+    large_text = pygame.font.Font('Fonts/Verdana.ttf', 115)
     text_surf, text_rect = text_objects('Pause Menu', large_text)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
     screen.blit(text_surf, text_rect)
@@ -226,37 +236,35 @@ def pause_menu(player):
     button_width = SCREEN_WIDTH * 0.20833333333333334
     button_height = SCREEN_HEIGHT * 0.06172839506172839
     while paused:
+        click = False
+        pressed_keys = pygame.key.get_pressed()
         for event in pygame.event.get():
-            pressed_keys = pygame.key.get_pressed()
-            alt_f4 = (event.type == pygame.KEYDOWN and event.key == K_F4
+            alt_f4 = (event.type == KEYDOWN and event.key == K_F4
                       and (pressed_keys[K_LALT] or pressed_keys[K_RALT]))
-            if event.type == pygame.QUIT or alt_f4: sys.exit()
-            if event.type == pygame.KEYDOWN:
-                right_key: bool = event.key == pygame.K_RIGHT and not pressed_keys[
-                    pygame.K_d] or event.key == pygame.K_d and not pressed_keys[pygame.K_RIGHT]
-                left_key: bool = event.key == pygame.K_LEFT and not pressed_keys[
-                    pygame.K_a] or event.key == pygame.K_a and not pressed_keys[pygame.K_LEFT]
-                if right_key:
-                    player.go_right()
-                elif left_key:
-                    player.go_left()
+            if event.type == QUIT or alt_f4: sys.exit()
+            elif event.type == KEYDOWN:
+                right_key: bool = event.key == K_RIGHT and not pressed_keys[K_d] or event.key == K_d and not pressed_keys[K_RIGHT]
+                left_key: bool = event.key == K_LEFT and not pressed_keys[K_a] or event.key == K_a and not pressed_keys[K_LEFT]
+                if right_key: player.go_right()
+                elif left_key: player.go_left()
                 elif event.key in (pygame.K_ESCAPE, pygame.K_p):
                     paused = False
                     break
-            if event.type == pygame.KEYUP:
+            elif event.type == MOUSEBUTTONDOWN:
+                click = True
+            elif event.type == pygame.KEYUP:
                 if event.key in (pygame.K_d, pygame.K_RIGHT, pygame.K_a, pygame.K_LEFT):
                     player.stop(pressed_keys)
                     player.facing_left = facing_left
 
         button('R E S U M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, action=resume, text_colour=BLACK)
+               button_width, button_height, BLUE, LIGHT_BLUE, click, action=resume, text_colour=BLACK)
 
         button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, action=resume, text_colour=BLACK)
+               button_width, button_height, BLUE, LIGHT_BLUE, click, action=main_menu, text_colour=BLACK)
 
         button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, action=quit, text_colour=BLACK)
-        # todo: update this UI LATER
+               button_width, button_height, BLUE, LIGHT_BLUE, click, action=quit, text_colour=BLACK)
         pygame.display.update()
         # clock.tick(60)
 
@@ -271,12 +279,12 @@ def end_game(score):
     global on_end_game
     on_end_game = True
     screen.fill(WHITE)
-    large_text = pygame.font.Font('freesansbold.ttf', 115)
+    large_text = pygame.font.Font('Fonts/Verdana.ttf', 115)
     text_surf, text_rect = text_objects('Game Over', large_text)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
     screen.blit(text_surf, text_rect)
 
-    large_text = pygame.font.Font('freesansbold.ttf', 50)
+    large_text = pygame.font.Font('Fonts/Verdana.ttf', 50)
     text_surf, text_rect = text_objects(f'You scored {score}', large_text)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT * 2 / 5))
     screen.blit(text_surf, text_rect)
@@ -286,18 +294,21 @@ def end_game(score):
         # put a you got a top score!!
         pass
     while on_end_game:
+        click = False
         pressed_keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             alt_f4 = (event.type == pygame.KEYDOWN and event.key == pygame.K_F4
                       and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT]))
             if event.type == pygame.QUIT or alt_f4: sys.exit()
+            elif event.type == MOUSEBUTTONDOWN:
+                click = True
 
         button('R E S T A R T', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, action=game, text_colour=BLACK)
+               button_width, button_height, BLUE, LIGHT_BLUE, click, action=game, text_colour=BLACK)
         button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, action=main_menu, text_colour=BLACK)
+               button_width, button_height, BLUE, LIGHT_BLUE, click, action=main_menu, text_colour=BLACK)
         button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 8 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, action=view_high_scores, text_colour=BLACK)
+               button_width, button_height, BLUE, LIGHT_BLUE, click, action=view_high_scores, text_colour=BLACK)
         pygame.display.update()
 
         # clock.tick(60)
@@ -331,12 +342,9 @@ def game():
                     pygame.K_d] or event.key == K_d and not pressed_keys[K_RIGHT]
                 left_key: bool = event.key == K_LEFT and not pressed_keys[
                     pygame.K_a] or event.key == K_a and not pressed_keys[K_LEFT]
-                if right_key:
-                    player.go_right()
-                elif left_key:
-                    player.go_left()
-                elif event.key in (K_UP, K_w, K_SPACE):
-                    player.jump()
+                if right_key: player.go_right()
+                elif left_key: player.go_left()
+                elif event.key in (K_UP, K_w, K_SPACE): player.jump()
                 elif event.key == K_ESCAPE and not pressed_keys[K_p] or event.key == K_p and not pressed_keys[K_ESCAPE]:
                     pause_menu(player)
             if event.type == pygame.KEYUP:
@@ -350,7 +358,6 @@ def game():
             score += 1
             if score > 1000 * world_shift_speed + (world_shift_speed - 1) * 1000:
                 world_shift_speed = min(world_shift_speed * 2, round(world_shift_speed_percent * SCREEN_HEIGHT) * 3)
-
         elif player.rect.top < 0.75 * SCREEN_HEIGHT:
             start_shifting = True
 
@@ -371,7 +378,4 @@ def game():
         clock.tick(60)
 
 
-
-
 main_menu()
-    # end_game(100)
