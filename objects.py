@@ -7,6 +7,12 @@ from extracter import *
 
 # Todo: comment code
 
+def load_image(image):
+    return pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
+
+def scale_image(image, new_width, new_height):
+    return pygame.transform.scale(image, (new_width, new_height))
+
 
 class Player(pygame.sprite.Sprite):
     # INITIAL_SPEED = 3
@@ -249,22 +255,26 @@ class Player(pygame.sprite.Sprite):
 
 
 class Platform(pygame.sprite.Sprite):
-    images = extract_platforms()
-    images = {'left': images[0], 'centre': images[1], 'right': images[2]}
     PERCENT_OF_SCREEN_HEIGHT = 0.07901234567901234
-    TILESET_SIDELENGTH = 27
-
+    side_length = TILESET_SIDELENGTH = 27
+    scale_factor = PERCENT_OF_SCREEN_HEIGHT * pygame.display.Info().current_h / TILESET_SIDELENGTH
+    side_length = int(side_length * scale_factor)
+    images = [load_image(image) for image in extract_platforms()]
+    print(side_length)
+    image_0 = pygame.transform.scale(images[0], (side_length, side_length))
+    image_1 = pygame.transform.scale(images[1], (side_length, side_length))
+    image_2 = pygame.transform.scale(images[2], (side_length, side_length))
+    images = [image_0, image_1, image_2]
+    # images = [scale_image(image, side_length, side_length) for image in images]
+    images = {'left': images[0], 'centre': images[1], 'right': images[2]}
+    
     # [platform_left, platform_centre, platform_right]
 
     def __init__(self, x, y, platform_type='centre'):
         super().__init__()
         # 16 is the height of the sprite in pixels
-        # Fixme: this isn't the right calculation
-        scale_factor = self.PERCENT_OF_SCREEN_HEIGHT * pygame.display.Info().current_h / self.TILESET_SIDELENGTH
+        # TODO: this isn't the right calculation
         self.image = self.images[platform_type.lower()]
-        self.image = pygame.image.fromstring(self.image.tobytes(), self.image.size, self.image.mode).convert_alpha()
-        width = height = self.TILESET_SIDELENGTH
-        self.image = pygame.transform.scale(self.image, (int(width * scale_factor), int(height * scale_factor)))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
 
@@ -307,15 +317,11 @@ class World(object):
                     num_of_platforms = random.randint(5, 13)
                 else:
                     num_of_platforms = random.randint(3, 10)
-                safety = x + num_of_platforms * self.tileset_new_sidelength + random.choice(
-                    [1.5, 2, 2.5]) * self.tileset_new_sidelength
+                safety = x + num_of_platforms * self.tileset_new_sidelength + random.choice([1.5, 2, 2.5]) * self.tileset_new_sidelength
                 for y in range(num_of_platforms):
-                    if y == 0:
-                        platform_type = 'left'
-                    elif y == num_of_platforms - 1:
-                        platform_type = 'right'
-                    else:
-                        platform_type = 'centre'
+                    if y == 0: platform_type = 'left'
+                    elif y == num_of_platforms - 1:  platform_type = 'right'
+                    else: platform_type = 'centre'
                     platform = Platform(x + y * self.tileset_new_sidelength, pos_y, platform_type)
                     self.platform_list.add(platform)
             elif x > safety:

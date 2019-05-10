@@ -4,7 +4,9 @@ import os
 from ctypes import windll
 
 from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE
-from objects import *
+import pygame
+
+# TODO: fix pygame lag when platforms are spawning
 
 # constants
 WHITE = 255, 255, 255
@@ -17,6 +19,24 @@ BLUE = 33, 150, 243
 
 BACKGROUND = 174, 222, 203
 game_folder = os.path.expanduser(r'~\Documents\Jungle Climb')
+
+windll.user32.SetProcessDPIAware()  # overrides windows "Change the size of Apps"
+os.environ['SDL_VIDEO_CENTERED'] = '1'  # center display
+pygame.init()  # initialize pygame
+infoObject = pygame.display.Info()  # infoObject holds information about the screen resolution
+
+# SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * infoObject.current_w), int(0.75 * infoObject.current_h)
+# screen = pygame.display.set_mode(SIZE)
+
+# FOR FULL SCREEN
+SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = infoObject.current_w, infoObject.current_h
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
+pygame.display.set_caption('Jungle Climb')
+clock = pygame.time.Clock()
+
+paused = False
+from objects import *
 
 
 def text_objects(text, font, colour=BLACK):
@@ -351,22 +371,7 @@ def game():
         clock.tick(60)
 
 
-if __name__ == '__main__':
-    windll.user32.SetProcessDPIAware()  # overrides windows "Change the size of Apps"
-    os.environ['SDL_VIDEO_CENTERED'] = '1'  # center display
-    pygame.init()  # initialize pygame
-    infoObject = pygame.display.Info()  # infoObject holds information about the screen resolution
 
-    # SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * infoObject.current_w), int(0.75 * infoObject.current_h)
-    # screen = pygame.display.set_mode(SIZE)
 
-    # FOR FULL SCREEN
-    SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = infoObject.current_w, infoObject.current_h
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-
-    pygame.display.set_caption('Jungle Climb')
-    clock = pygame.time.Clock()
-
-    paused = False
-    main_menu()
+main_menu()
     # end_game(100)
