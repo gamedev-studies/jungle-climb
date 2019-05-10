@@ -336,9 +336,11 @@ class World(object):
         self.player.rect.y += shift_y
         for platform in self.platform_list:
             platform.rect.y += shift_y
-            if platform.rect.y < farthest_y: farthest_y = platform.rect.y
-            if platform.rect.top > self.screen_height + platform.rect.height: platforms_to_remove.append(platform)
-        if len(platforms_to_remove) > 0:
+            if platform.rect.y < farthest_y:
+                farthest_y = platform.rect.y
+            if platform.rect.top > self.screen_height + platform.rect.height:
+                platforms_to_remove.append(platform)
+        if platforms_to_remove:
             self.platform_list.remove(platforms_to_remove)
             self.create_platforms(farthest_y - self.tileset_new_sidelength * 3)
 
