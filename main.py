@@ -4,7 +4,7 @@ import os
 from ctypes import windll
 
 from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, MOUSEBUTTONDOWN, \
-    QUIT, KEYDOWN
+    QUIT, KEYDOWN, K_TAB
 import pygame
 
 # constants
@@ -155,8 +155,8 @@ def main_menu():
         click = False
         pressed_keys = pygame.key.get_pressed()
         for event in pygame.event.get():
-            alt_f4 = (event.type == pygame.KEYDOWN and event.key == pygame.K_F4
-                      and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT]))
+            alt_f4 = (event.type == KEYDOWN and event.key == K_F4
+                      and (pressed_keys[K_LALT] or pressed_keys[K_RALT]))
             if event.type == pygame.QUIT or alt_f4: sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 click = True
@@ -300,9 +300,12 @@ def game():
                 elif event.key in (K_UP, K_w, K_SPACE): player.jump()
                 elif event.key == K_ESCAPE and not pressed_keys[K_p] or event.key == K_p and not pressed_keys[K_ESCAPE]:
                     pause_menu(player)
+                elif event.key == K_TAB: print('test')
             if event.type == pygame.KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
                     player.stop(pressed_keys)
+        if not pygame.mouse.get_focused():
+            pause_menu(player)
 
         player.update()
         if start_shifting:
