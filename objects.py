@@ -164,6 +164,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.speed[1]
 
         platform_hit_list = pygame.sprite.spritecollide(self, self.world.platform_list, False)  # detect collisions
+        
         for platform in platform_hit_list:
             if self.speed[1] > 0 and self.rect.bottom > platform.rect.top + self.GROUND_ADJUSTMENT:  # going down
                 self.rect.bottom = platform.rect.top + self.GROUND_ADJUSTMENT

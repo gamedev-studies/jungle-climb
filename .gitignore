@@ -1,3 +1,5 @@
-.idea
-__pycache__
-build
+.idea/
+.vscode/
+__pycache__/
+build/
+dist/
