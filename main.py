@@ -27,7 +27,7 @@ pygame.init()  # initialize pygame
 infoObject = pygame.display.Info()  # infoObject holds information about the screen resolution
 
 
-FULLSCREEN = False
+FULLSCREEN = True
 if FULLSCREEN:
     SCREEN_WIDTH, SCREEN_HEIGHT = infoObject.current_w, infoObject.current_h
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -291,7 +291,7 @@ def game():
     start = time.time()
     while not on_main_menu:
         delta = time.time() - start
-        print(delta)  # somehow reduces lag
+        print(delta)  # somehow reduces lag0
         start = time.time()
         if start_game:
             start_game = False
@@ -324,7 +324,7 @@ def game():
                 elif event.key in (K_UP, K_w, K_SPACE): player.jump()
                 elif event.key == K_ESCAPE and not pressed_keys[K_p] or event.key == K_p and not pressed_keys[K_ESCAPE]:
                     pause_menu(player)
-                elif event.key == K_TAB: print('test')
+                # elif event.key == K_TAB: print('test')
             if event.type == pygame.KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
                     player.stop(pressed_keys)
@@ -345,7 +345,6 @@ def game():
         all_sprites_list.draw(screen)
         world.draw(screen)
         
-
         text_surf, text_rect = text_objects(str(score), score_text, WHITE)
         text_rect.topright = text_anchor
         # screen.blit(text_surf, text_rect)
