@@ -2,6 +2,7 @@ import pathlib
 import sys
 import os
 from ctypes import windll
+from contextlib import suppress
 import time
 
 from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, \
@@ -35,18 +36,13 @@ else:
     screen = pygame.display.set_mode(SIZE)
 
 LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font('Fonts/Verdana.ttf', 115), pygame.font.Font('Fonts/Verdana.ttf', 50)
-SMALL_TEXT = pygame.font.Font('Fonts/Verdana.ttf', 25)
+SMALL_TEXT, SCORE_TEXT = pygame.font.Font('Fonts/Verdana.ttf', 25), pygame.font.Font('Fonts/Verdana.ttf', 40)
 
 pygame.display.set_caption('Jungle Climb')
 clock = pygame.time.Clock()
 
 paused, on_end_screen, on_main_menu, ticks = False, False, True, 0
 from objects import *
-
-
-def quit_game():
-    pygame.quit()
-    sys.exit()
 
 
 def text_objects(text, font, colour=BLACK):
@@ -137,7 +133,7 @@ def view_high_scores():
         for event in pygame.event.get():
             alt_f4 = (event.type == pygame.KEYDOWN and event.key == pygame.K_F4
                       and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT]))
-            if event.type == pygame.QUIT or alt_f4: quit_game()
+            if event.type == pygame.QUIT or alt_f4: sys.exit()
             if event.type == MOUSEBUTTONDOWN:
                 click = True
 
@@ -168,7 +164,7 @@ def main_menu():
         for event in pygame.event.get():
             alt_f4 = (event.type == KEYDOWN and event.key == K_F4
                       and (pressed_keys[K_LALT] or pressed_keys[K_RALT]))
-            if event.type == pygame.QUIT or alt_f4: quit_game()
+            if event.type == pygame.QUIT or alt_f4: sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 click = True
 
@@ -181,7 +177,7 @@ def main_menu():
             main_menu_setup()
         if button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
-            quit_game()
+            sys.exit()
         pygame.display.update()
         # clock.tick(60)
 
@@ -212,7 +208,7 @@ def pause_menu(player):
         for event in pygame.event.get():
             alt_f4 = (event.type == KEYDOWN and event.key == K_F4
                       and (pressed_keys[K_LALT] or pressed_keys[K_RALT]))
-            if event.type == QUIT or alt_f4: quit_game()
+            if event.type == QUIT or alt_f4: sys.exit()
             elif event.type == KEYDOWN:
                 right_key = event.key == K_RIGHT and not pks[K_d] or event.key == K_d and not pks[K_RIGHT]
                 left_key = event.key == K_LEFT and not pks[K_a] or event.key == K_a and not pks[K_LEFT]
@@ -231,14 +227,16 @@ def pause_menu(player):
         if button('R E S U M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             resume()
+            return 'Resume'
 
         if button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             main_menu()
+            return 'Main Menu'
 
         if button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
-            quit_game()
+            sys.exit()
         pygame.display.update()
         # clock.tick(60)
 
@@ -270,14 +268,16 @@ def end_game(score):
         for event in pygame.event.get():
             alt_f4 = (event.type == pygame.KEYDOWN and event.key == pygame.K_F4
                       and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT]))
-            if event.type == pygame.QUIT or alt_f4: quit_game()
+            if event.type == pygame.QUIT or alt_f4: sys.exit()
             elif event.type == MOUSEBUTTONDOWN: click = True
         if button('R E S T A R T', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             game()
+            return 'Restart'
         elif button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
                     button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             main_menu()
+            return 'Main Menu'
         elif button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 8 / 13,
                     button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             view_high_scores()
@@ -298,11 +298,10 @@ def game():
     world_shift_speed = round(WORLD_SHIFT_SPEED_PERCENT * SCREEN_HEIGHT)  # NOTE: percent of screen
     score = 0
     text_anchor = round(0.997 * SCREEN_WIDTH), 0
-    score_text = pygame.font.Font('Fonts/Verdana.ttf', 40)
     start = time.time()
     while not on_main_menu:
         delta = time.time() - start
-        print(delta)  # somehow reduces lag0
+        print(delta)  # somehow reduces lag
         start = time.time()
         # TODO: made background with vines
         if not pygame.mouse.get_focused():
@@ -313,7 +312,7 @@ def game():
             pressed_keys = pygame.key.get_pressed()
             alt_f4 = (event.type == pygame.KEYDOWN and event.key == K_F4
                       and (pressed_keys[K_LALT] or pressed_keys[K_RALT]))
-            if event.type == pygame.QUIT or alt_f4: quit_game()
+            if event.type == pygame.QUIT or alt_f4: sys.exit()
             if event.type == pygame.KEYDOWN:
                 right_key: bool = event.key == K_RIGHT and not pressed_keys[
                     pygame.K_d] or event.key == K_d and not pressed_keys[K_RIGHT]
@@ -344,7 +343,7 @@ def game():
         screen.fill(BACKGROUND)
         all_sprites_list.draw(screen)
         world.draw(screen)
-        text_surf, text_rect = text_objects(str(score), score_text, WHITE)
+        text_surf, text_rect = text_objects(str(score), SCORE_TEXT, WHITE)
         text_rect.topright = text_anchor
         # screen.blit(text_surf, text_rect)
         text_bg_w, text_bg_h = text_surf.get_size()
