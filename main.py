@@ -276,6 +276,7 @@ def game():
     global on_main_menu, start_game
     set_main_loop()
     start_game = True
+    game_over = False
     delta = 0
     start = time.time()
     while not on_main_menu:
@@ -298,6 +299,8 @@ def game():
         # TODO: made background with vines
         if not pygame.mouse.get_focused():
             pause_menu(player)
+            # TODO: return something
+            # continue ?
         for event in pygame.event.get():
             pressed_keys = pygame.key.get_pressed()
             alt_f4 = (event.type == pygame.KEYDOWN and event.key == K_F4
@@ -313,6 +316,7 @@ def game():
                 elif event.key in (K_UP, K_w, K_SPACE): player.jump()
                 elif event.key == K_ESCAPE and not pressed_keys[K_p] or event.key == K_p and not pressed_keys[K_ESCAPE]:
                     pause_menu(player)
+                    # TODO: return something
                 # elif event.key == K_TAB: print('test')
             if event.type == pygame.KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
@@ -327,8 +331,8 @@ def game():
         elif player.rect.top < 0.75 * SCREEN_HEIGHT: start_shifting = True
 
         if player.rect.top > SCREEN_HEIGHT + player.rect.height:
-            end_game(score)
-            continue
+            game_over = True
+            break
 
         screen.fill(BACKGROUND)
         all_sprites_list.draw(screen)
@@ -345,5 +349,6 @@ def game():
         screen.blit(text_bg, text_rect)
         pygame.display.update()
         clock.tick(60)
+    if game_over: end_game(score)
 
 main_menu()
