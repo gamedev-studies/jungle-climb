@@ -7,7 +7,10 @@ block_cipher = None
 a = Analysis(['main.py'],
              pathex=[os.getcwd()],
              binaries=[],
-             datas=[],
+             datas=[('Fonts/Verdana.ttf', 'Fonts/Verdana.ttf'),
+                    ('Jungle Asset Pack/Charaacter/sprites/*', 'Jungle Asset Pack/Charaacter/sprites'),
+                    ('Jungle Asset Pack/Jungle tileset/jungle tileset.png', 'Jungle Asset Pack/Jungle tileset/jungle tileset.png')
+             ],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],

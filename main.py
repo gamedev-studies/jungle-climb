@@ -2,7 +2,6 @@ import pathlib
 import sys
 import os
 from ctypes import windll
-from contextlib import suppress
 import time
 
 from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, \
@@ -42,6 +41,7 @@ pygame.display.set_caption('Jungle Climb')
 clock = pygame.time.Clock()
 
 paused, on_end_screen, on_main_menu, ticks = False, False, True, 0
+if getattr(sys, 'frozen', False): os.chdir(sys._MEIPASS)
 from objects import *
 
 
