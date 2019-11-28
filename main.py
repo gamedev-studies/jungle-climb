@@ -4,11 +4,11 @@ import os
 from ctypes import windll
 import time
 
-from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, MOUSEBUTTONDOWN, \
-    QUIT, KEYDOWN, K_TAB
+from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, \
+    MOUSEBUTTONDOWN, QUIT, KEYDOWN, K_TAB
 import pygame
 
-# constants
+# CONSTANTS
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
 # GREEN = 50, 205, 50
@@ -16,8 +16,8 @@ GREEN = 40, 175, 99
 DARK_GREEN = 0, 128, 0
 LIGHT_BLUE = 0, 191, 255
 BLUE = 33, 150, 243
-
 BACKGROUND = 174, 222, 203
+WORLD_SHIFT_SPEED_PERCENT = 0.00135
 game_folder = os.path.expanduser(r'~\Documents\Jungle Climb')
 
 windll.user32.SetProcessDPIAware()  # overrides windows "Change the size of Apps"
@@ -34,22 +34,19 @@ else:
     SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * infoObject.current_w), int(0.75 * infoObject.current_h)
     screen = pygame.display.set_mode(SIZE)
 
-LARGE_TEXT  = pygame.font.Font('Fonts/Verdana.ttf', 115)
-MEDIUM_TEXT = pygame.font.Font('Fonts/Verdana.ttf', 50)
-SMALL_TEXT  = pygame.font.Font('Fonts/Verdana.ttf', 25)
+LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font('Fonts/Verdana.ttf', 115), pygame.font.Font('Fonts/Verdana.ttf', 50)
+SMALL_TEXT = pygame.font.Font('Fonts/Verdana.ttf', 25)
 
 pygame.display.set_caption('Jungle Climb')
 clock = pygame.time.Clock()
 
-paused = on_end_screen = False
-on_main_menu = True
+paused, on_end_screen, on_main_menu, ticks = False, False, True, 0
 from objects import *
 
 
 def quit_game():
     pygame.quit()
     sys.exit()
-exit_game = quit_game
 
 
 def text_objects(text, font, colour=BLACK):
@@ -57,7 +54,7 @@ def text_objects(text, font, colour=BLACK):
     return text_surface, text_surface.get_rect()
 
 
-def save_score(user_score: int, path: str = game_folder + r'\high scores.txt') -> bool:
+def save_score(user_score: int, path: str = game_folder + '/High Scores.txt') -> bool:
     """
     Takes a score and saves to file if it is a top 10 score else it returns False
     :param user_score: the score of the user
@@ -104,29 +101,25 @@ def get_scores(path: str = game_folder + r'\high scores.txt') -> list:
         return [0] * 10
 
 
-def button(text, x, y, w, h, inactive_colour, active_colour, click, action=None, text_colour=BLACK):
+def button(text, x, y, w, h, inactive_colour, active_colour, click, text_colour=BLACK):
     mouse = pygame.mouse.get_pos()
     # focus = pygame.mouse.get_focused()
-
+    return_value = False
     if x < mouse[0] < x + w and y < mouse[1] < y + h:  # if mouse is hovering the button
         pygame.draw.rect(screen, active_colour, (x, y, w, h))
-        if click and action is not None and pygame.time.get_ticks() - ticks > 100: action()
-    else:
-        pygame.draw.rect(screen, inactive_colour, (x, y, w, h))
+        if click and pygame.time.get_ticks() > 100: return_value = True
+        # if click and action is not None and pygame.time.get_ticks() - ticks > 100: action()
+    else: pygame.draw.rect(screen, inactive_colour, (x, y, w, h))
 
     text_surf, text_rect = text_objects(text, SMALL_TEXT, colour=text_colour)
     text_rect.center = (x + w / 2, y + h / 2)
     screen.blit(text_surf, text_rect)
-
-
-def set_main_loop():
-    global on_main_menu
-    on_main_menu = not on_main_menu
+    return return_value
 
 
 def view_high_scores():
     global on_main_menu
-    set_main_loop()
+    on_main_menu = False
     screen.fill(WHITE)
     text_surf, text_rect = text_objects('High Scores', LARGE_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 6))
@@ -137,9 +130,8 @@ def view_high_scores():
         text_surf, text_rect = text_objects(score, MEDIUM_TEXT)
         text_rect.center = ((SCREEN_WIDTH / 2), ((i/1.5 + 3) * SCREEN_HEIGHT / 11))
         screen.blit(text_surf, text_rect)
-    button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 4 / 5,
-           button_width, button_height, BLUE, LIGHT_BLUE, False, action=set_main_loop, text_colour=WHITE)
-    while not on_main_menu:
+    on_high_score = True
+    while on_high_score:
         click = False
         pressed_keys = pygame.key.get_pressed()
         for event in pygame.event.get():
@@ -149,20 +141,24 @@ def view_high_scores():
             if event.type == MOUSEBUTTONDOWN:
                 click = True
 
-            button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 4 / 5,
-                   button_width, button_height, BLUE, LIGHT_BLUE, click, action=main_menu, text_colour=WHITE)
-
+        if button('B A C K', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 4 / 5,
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+            on_high_score = False
         pygame.display.update()
         # clock.tick(60)
 
 
-def main_menu():
-    global ticks, on_main_menu
-    on_main_menu = True
+def main_menu_setup():
     screen.fill(WHITE)
     text_surf, text_rect = text_objects('Jungle Climb', LARGE_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
-    
+    screen.blit(text_surf, text_rect)
+
+
+def main_menu():
+    global ticks, on_main_menu
+    main_menu_setup()
+    on_main_menu = True
     button_width = SCREEN_WIDTH * 0.20833333333333334
     button_height = SCREEN_HEIGHT * 0.06172839506172839
     ticks = pygame.time.get_ticks()
@@ -175,13 +171,17 @@ def main_menu():
             if event.type == pygame.QUIT or alt_f4: quit_game()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 click = True
-        screen.blit(text_surf, text_rect)
-        button('S T A R T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, click, action=game, text_colour=WHITE)
-        button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, click, action=view_high_scores, text_colour=WHITE)
-        button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, click, action=quit_game, text_colour=WHITE)
+
+        if button('S T A R T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+            game()
+        if button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+            view_high_scores()
+            main_menu_setup()
+        if button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+            quit_game()
         pygame.display.update()
         # clock.tick(60)
 
@@ -208,14 +208,14 @@ def pause_menu(player):
     button_height = SCREEN_HEIGHT * 0.06172839506172839
     while paused:
         click = False
-        pressed_keys = pygame.key.get_pressed()
+        pks = pressed_keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             alt_f4 = (event.type == KEYDOWN and event.key == K_F4
                       and (pressed_keys[K_LALT] or pressed_keys[K_RALT]))
             if event.type == QUIT or alt_f4: quit_game()
             elif event.type == KEYDOWN:
-                right_key: bool = event.key == K_RIGHT and not pressed_keys[K_d] or event.key == K_d and not pressed_keys[K_RIGHT]
-                left_key: bool = event.key == K_LEFT and not pressed_keys[K_a] or event.key == K_a and not pressed_keys[K_LEFT]
+                right_key = event.key == K_RIGHT and not pks[K_d] or event.key == K_d and not pks[K_RIGHT]
+                left_key = event.key == K_LEFT and not pks[K_a] or event.key == K_a and not pks[K_LEFT]
                 if right_key: player.go_right()
                 elif left_key: player.go_left()
                 elif event.key in (pygame.K_ESCAPE, pygame.K_p):
@@ -228,74 +228,82 @@ def pause_menu(player):
                     player.stop(pressed_keys)
                     player.facing_left = facing_left
 
-        button('R E S U M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, click, action=resume, text_colour=WHITE)
+        if button('R E S U M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+            resume()
 
-        button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, click, action=main_menu, text_colour=WHITE)
+        if button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+            main_menu()
 
-        button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
-               button_width, button_height, BLUE, LIGHT_BLUE, click, action=quit_game, text_colour=WHITE)
+        if button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+            quit_game()
         pygame.display.update()
         # clock.tick(60)
 
 
-def end_game(score):
-    global on_end_screen
-    on_end_screen = True
-    screen.fill(WHITE)
+def end_game_setup(score, from_copy=None):
+    # screen.fill(WHITE)
+    if from_copy is not None:
+        screen.blit(from_copy, (0, 0))
+    background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+    background.fill((255, 255, 255, 160))
+    screen.blit(background, (0, 0))
     text_surf, text_rect = text_objects('Game Over', LARGE_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
     screen.blit(text_surf, text_rect)
     text_surf, text_rect = text_objects(f'You scored {score}', MEDIUM_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT * 8 / 21))
     screen.blit(text_surf, text_rect)
-    button_width = SCREEN_WIDTH * 0.21
-    button_height = SCREEN_HEIGHT * 0.062
-    if save_score(score): pass  # Show "you got a high score!"
+    return pygame.display.get_surface().copy()
+
+
+def end_game(score):
+    global on_end_screen
+    on_end_screen = True
+    end_screen_copy = end_game_setup(score)
+    button_width, button_height = SCREEN_WIDTH * 0.21, SCREEN_HEIGHT * 0.062
+    if save_score(score): pass  # Show "You got a high score!"
     while on_end_screen:
-        click = False
-        pressed_keys = pygame.key.get_pressed()
+        click, pressed_keys = False, pygame.key.get_pressed()
         for event in pygame.event.get():
             alt_f4 = (event.type == pygame.KEYDOWN and event.key == pygame.K_F4
                       and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT]))
             if event.type == pygame.QUIT or alt_f4: quit_game()
             elif event.type == MOUSEBUTTONDOWN: click = True
-        button('R E S T A R T', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
-            button_width, button_height, BLUE, LIGHT_BLUE, click, action=game, text_colour=WHITE)
-        button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
-            button_width, button_height, BLUE, LIGHT_BLUE, click, action=main_menu, text_colour=WHITE)
-        button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 8 / 13,
-            button_width, button_height, BLUE, LIGHT_BLUE, click, action=view_high_scores, text_colour=WHITE)
+        if button('R E S T A R T', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+            game()
+        elif button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
+                    button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+            main_menu()
+        elif button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 8 / 13,
+                    button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+            view_high_scores()
+            end_game_setup(score, end_screen_copy)
         pygame.display.update()
-
         # clock.tick(60)
 
 
 def game():
-    global on_main_menu, start_game
-    set_main_loop()
-    start_game = True
-    game_over = False
-    delta = 0
+    global on_main_menu
+    on_main_menu = False
+    game_over, start_shifting = False, False
+    world = World()
+    player = Player(world)
+    player.force_stop()
+    all_sprites_list = pygame.sprite.Group(player)
+    world.player = player
+    world_shift_speed = round(WORLD_SHIFT_SPEED_PERCENT * SCREEN_HEIGHT)  # NOTE: percent of screen
+    score = 0
+    text_anchor = round(0.997 * SCREEN_WIDTH), 0
+    score_text = pygame.font.Font('Fonts/Verdana.ttf', 40)
     start = time.time()
     while not on_main_menu:
         delta = time.time() - start
         print(delta)  # somehow reduces lag0
         start = time.time()
-        if start_game:
-            start_game = False
-            world = World()
-            player = Player(world)
-            player.force_stop()
-            all_sprites_list = pygame.sprite.Group(player)
-            world.player = player
-            world_shift_speed_percent = 0.00135
-            world_shift_speed = round(world_shift_speed_percent * SCREEN_HEIGHT)  # note: percent of screen
-            start_shifting = False
-            score = 0
-            text_anchor = round(0.997 * SCREEN_WIDTH), 0
-            score_text = pygame.font.Font('Fonts/Verdana.ttf', 40)
         # TODO: made background with vines
         if not pygame.mouse.get_focused():
             pause_menu(player)
@@ -327,17 +335,15 @@ def game():
             world.shift_world(world_shift_speed)
             score += 1
             if score > 1000 * world_shift_speed + (world_shift_speed - 1) * 1000:
-                world_shift_speed = min(world_shift_speed * 2, round(world_shift_speed_percent * SCREEN_HEIGHT) * 4)
+                world_shift_speed = min(world_shift_speed * 2, round(WORLD_SHIFT_SPEED_PERCENT * SCREEN_HEIGHT) * 4)
         elif player.rect.top < 0.75 * SCREEN_HEIGHT: start_shifting = True
 
         if player.rect.top > SCREEN_HEIGHT + player.rect.height:
             game_over = True
             break
-
         screen.fill(BACKGROUND)
         all_sprites_list.draw(screen)
         world.draw(screen)
-        
         text_surf, text_rect = text_objects(str(score), score_text, WHITE)
         text_rect.topright = text_anchor
         # screen.blit(text_surf, text_rect)
@@ -350,5 +356,6 @@ def game():
         pygame.display.update()
         clock.tick(60)
     if game_over: end_game(score)
+
 
 main_menu()
