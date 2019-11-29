@@ -39,8 +39,6 @@ SMALL_TEXT, SCORE_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(25 / 1440 * c
 pygame.display.set_caption('Jungle Climb')
 clock = pygame.time.Clock()
 ticks = 0
-
-if getattr(sys, 'frozen', False): os.chdir(sys._MEIPASS)
 from objects import *
 
 

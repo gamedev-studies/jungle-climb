@@ -1,1 +1,1 @@
-pyinstaller main.spec
+python setup.py build && iscc "Installer Script.iss"

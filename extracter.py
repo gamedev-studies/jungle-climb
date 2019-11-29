@@ -37,6 +37,4 @@ def extract_images(source_path: str, sprite_width: int) -> list:
 
 if __name__ == '__main__':
     # extract_images('Jungle Asset Pack/Character with outline/sprites/run outline.png', 23)
-    extract_platforms('Jungle Asset Pack/jungle tileset/jungle tileset.png')[1]
-    print('hello world')
-    Var = 'test'
+    extract_platforms()[1]
