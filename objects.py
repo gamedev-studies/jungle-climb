@@ -53,7 +53,6 @@ class Player(pygame.sprite.Sprite):
     idle_images = [idle_images_right, idle_images_left]
     for image in extract_images(idle_sprite_path, 19):  # 21 with outline, 19 without
         image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
-
         image = scale_image(image, scale_factor)
         idle_images_right.append(image)
         idle_images_left.append(pygame.transform.flip(image, True, False))
