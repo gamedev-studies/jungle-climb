@@ -20,7 +20,8 @@ BACKGROUND = 174, 222, 203
 WORLD_SHIFT_SPEED_PERCENT = 0.00135
 game_folder = os.path.expanduser(r'~\Documents\Jungle Climb')
 
-windll.user32.SetProcessDPIAware()  # overrides windows "Change the size of Apps"
+# windll.user32.SetProcessDPIAware()  # overrides windows "Change the size of Apps"
+windll.shcore.SetProcessDpiAwareness(1)
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # center display
 pygame.init()  # initialize pygame
 current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().current_h
@@ -33,8 +34,8 @@ else:
     SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * current_w), int(0.75 * current_h)
     screen = pygame.display.set_mode(SIZE)
 
-LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(110 / 1080 * current_h)), pygame.font.Font('Fonts/Verdana.ttf', int(50 / 1080 * current_h))
-SMALL_TEXT, SCORE_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(30 / 1440 * current_h)), pygame.font.Font('Fonts/Verdana.ttf', 40)
+LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(110 / 1080 * current_h)), pygame.font.Font('Fonts/Verdana.ttf', int(40 / 1080 * current_h))
+SMALL_TEXT, SCORE_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(25 / 1440 * current_h)), pygame.font.Font('Fonts/Verdana.ttf', int(40 / 1440 * current_h))
 
 pygame.display.set_caption('Jungle Climb')
 clock = pygame.time.Clock()
@@ -293,7 +294,7 @@ def game():
     score = 0
     text_anchor = round(0.997 * SCREEN_WIDTH), 0
     start = time.time()
-    while not on_main_menu:
+    while True:
         delta = time.time() - start
         # print(delta)  # somehow reduces lag
         start = time.time()
