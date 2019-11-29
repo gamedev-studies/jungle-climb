@@ -23,19 +23,18 @@ game_folder = os.path.expanduser(r'~\Documents\Jungle Climb')
 windll.user32.SetProcessDPIAware()  # overrides windows "Change the size of Apps"
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # center display
 pygame.init()  # initialize pygame
-infoObject = pygame.display.Info()  # infoObject holds information about the screen resolution
-
+current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().current_h
 
 FULLSCREEN = True
 if FULLSCREEN:
-    SCREEN_WIDTH, SCREEN_HEIGHT = infoObject.current_w, infoObject.current_h
+    SCREEN_WIDTH, SCREEN_HEIGHT = current_w, current_h
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 else:
-    SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * infoObject.current_w), int(0.75 * infoObject.current_h)
+    SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * current_w), int(0.75 * current_h)
     screen = pygame.display.set_mode(SIZE)
 
-LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font('Fonts/Verdana.ttf', 115), pygame.font.Font('Fonts/Verdana.ttf', 50)
-SMALL_TEXT, SCORE_TEXT = pygame.font.Font('Fonts/Verdana.ttf', 25), pygame.font.Font('Fonts/Verdana.ttf', 40)
+LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(110 / 1080 * current_h)), pygame.font.Font('Fonts/Verdana.ttf', int(50 / 1080 * current_h))
+SMALL_TEXT, SCORE_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(30 / 1440 * current_h)), pygame.font.Font('Fonts/Verdana.ttf', 40)
 
 pygame.display.set_caption('Jungle Climb')
 clock = pygame.time.Clock()
