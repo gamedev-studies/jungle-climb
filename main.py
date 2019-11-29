@@ -20,7 +20,6 @@ BACKGROUND = 174, 222, 203
 WORLD_SHIFT_SPEED_PERCENT = 0.00135
 game_folder = os.path.expanduser(r'~\Documents\Jungle Climb')
 
-# windll.user32.SetProcessDPIAware()  # overrides windows "Change the size of Apps"
 windll.shcore.SetProcessDpiAwareness(1)
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # center display
 pygame.init()  # initialize pygame
