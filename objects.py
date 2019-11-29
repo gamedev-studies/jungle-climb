@@ -5,7 +5,8 @@ import pygame
 from extracter import extract_images, extract_platforms
 
 
-# Todo: comment code
+current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().current_h
+
 
 def load_image(image):
     return pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
@@ -41,9 +42,6 @@ class Player(pygame.sprite.Sprite):
     landing_sprite_path = 'Jungle Asset Pack/Character/sprites/landing.png'
     mid_air_sprite_path = 'Jungle Asset Pack/Character/sprites/mid air.png'
     run_sprite_path = 'Jungle Asset Pack/Character/sprites/run.png'
-
-    current_h = pygame.display.Info().current_h
-    current_w = pygame.display.Info().current_w
 
     RUNNING_SPEED = round(current_w / 200)
     JUMP_SPEED = round(current_h / -40.5)
@@ -103,7 +101,7 @@ class Player(pygame.sprite.Sprite):
         collide_width = self.rect.width - 8 * self.scale_factor
         self.collide_rect: pygame.Rect = pygame.rect.Rect((0, 0), (collide_width, self.rect.height))
         if pos is None:
-            pos = (0.05 * self.current_w, 0.92098765432098766 * self.current_h + self.GROUND_ADJUSTMENT)
+            pos = (0.05 * current_w, 0.92098765432098766 * current_h + self.GROUND_ADJUSTMENT)
         self.rect.bottomleft = pos
         self.collide_rect.midbottom = self.rect.midbottom
 
@@ -237,7 +235,6 @@ class Player(pygame.sprite.Sprite):
 
 class Platform(pygame.sprite.Sprite):
     PERCENT_OF_SCREEN_HEIGHT = 0.07901234567901234
-    current_h = pygame.display.Info().current_h
     GROUND_ADJUSTMENT = ceil(0.1111111111111111 * 0.07901234567901234 * current_h)
     side_length = TILESET_SIDELENGTH = 27
     scale_factor = PERCENT_OF_SCREEN_HEIGHT * current_h / TILESET_SIDELENGTH
@@ -274,8 +271,8 @@ class World(object):
         TILESET_SIDELENGTH = 27
         self.platform_list = pygame.sprite.Group()
         self.player = None
-        self.screen_width, self.screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
-        self.scale_factor = 0.07901234567901234 * pygame.display.Info().current_h / TILESET_SIDELENGTH
+        self.screen_width, self.screen_height = current_w, current_h
+        self.scale_factor = 0.07901234567901234 * current_h / TILESET_SIDELENGTH
         self.tileset_new_sidelength = int(TILESET_SIDELENGTH * self.scale_factor)
         self.number_of_spots = self.screen_width // self.tileset_new_sidelength
         pos_y = self.screen_height - self.tileset_new_sidelength
