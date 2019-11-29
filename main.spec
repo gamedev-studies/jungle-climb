@@ -19,6 +19,10 @@ a = Analysis(['main.py'],
              win_private_assemblies=False,
              cipher=block_cipher,
              noarchive=False)
+for d in a.binaries:
+       if 'pypiwin32_system32\pywintypes34' in d[1]:
+              a.binaries.remove(d)
+              break
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
