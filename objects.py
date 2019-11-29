@@ -2,7 +2,7 @@ import random
 from math import ceil
 
 import pygame
-from extracter import *
+from extracter import extract_images, extract_platforms
 
 
 # Todo: comment code
