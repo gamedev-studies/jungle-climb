@@ -264,7 +264,6 @@ def end_game(score):
             elif event.type == MOUSEBUTTONDOWN: click = True
         if button('R E S T A R T', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
-            # game()
             return 'Restart'
         elif button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
                     button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
