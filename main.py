@@ -39,7 +39,7 @@ SMALL_TEXT, SCORE_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(30 / 1440 * c
 pygame.display.set_caption('Jungle Climb')
 clock = pygame.time.Clock()
 
-paused, on_end_screen, on_main_menu, ticks = False, False, True, 0
+on_end_screen, on_main_menu, ticks = False, True, 0
 if getattr(sys, 'frozen', False): os.chdir(sys._MEIPASS)
 from objects import *
 
@@ -184,13 +184,7 @@ def main_menu():
         # clock.tick(60)
 
 
-def resume():
-    global paused
-    paused = False
-
-
 def pause_menu(player):
-    global paused
     paused = True
     facing_left = player.facing_left  # store the pre-pause value in case player doesn't hold a right/left key down
     background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32)

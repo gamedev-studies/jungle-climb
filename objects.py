@@ -207,13 +207,11 @@ class Player(pygame.sprite.Sprite):
         self.speed = [0, 0]
 
     def go_left(self):
-        if self.speed[0] > -self.RUNNING_SPEED:
-            self.speed[0] -= self.RUNNING_SPEED
+        if self.speed[0] > -self.RUNNING_SPEED: self.speed[0] -= self.RUNNING_SPEED
         self.facing_left = True
 
     def go_right(self):
-        if self.speed[0] < self.RUNNING_SPEED:
-            self.speed[0] += self.RUNNING_SPEED
+        if self.speed[0] < self.RUNNING_SPEED: self.speed[0] += self.RUNNING_SPEED
         self.facing_left = False
 
     def jump(self):
