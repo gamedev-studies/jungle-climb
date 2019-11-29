@@ -169,12 +169,15 @@ def main_menu():
 
         if button('S T A R T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
-            game()
-        if button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
+            game_ended = 'Restart'
+            while game_ended == 'Restart':
+                game_ended = game()
+            main_menu_setup()
+        elif button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             view_high_scores()
             main_menu_setup()
-        if button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
+        elif button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             sys.exit()
         pygame.display.update()
@@ -190,7 +193,6 @@ def pause_menu(player):
     global paused
     paused = True
     facing_left = player.facing_left  # store the pre-pause value in case player doesn't hold a right/left key down
-
     background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32)
     background.fill((255, 255, 255, 160))
     screen.blit(background, (0, 0))
@@ -213,24 +215,22 @@ def pause_menu(player):
                 left_key = event.key == K_LEFT and not pks[K_a] or event.key == K_a and not pks[K_LEFT]
                 if right_key: player.go_right()
                 elif left_key: player.go_left()
-                elif event.key in (pygame.K_ESCAPE, pygame.K_p):
+                if event.key in (pygame.K_ESCAPE, pygame.K_p):
                     paused = False
                     break
-            elif event.type == MOUSEBUTTONDOWN:
-                click = True
+            elif event.type == MOUSEBUTTONDOWN: click = True
             elif event.type == pygame.KEYUP:
                 if event.key in (pygame.K_d, pygame.K_RIGHT, pygame.K_a, pygame.K_LEFT):
+                    print(pressed_keys)
                     player.stop(pressed_keys)
                     player.facing_left = facing_left
 
         if button('R E S U M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
-            resume()
             return 'Resume'
 
         if button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
-            main_menu()
             return 'Main Menu'
 
         if button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
@@ -238,6 +238,7 @@ def pause_menu(player):
             sys.exit()
         pygame.display.update()
         # clock.tick(60)
+    return 'Resume'
 
 
 def end_game_setup(score, from_copy=None):
@@ -285,10 +286,11 @@ def end_game(score):
         # clock.tick(60)
 
 
+ 
 def game():
     global on_main_menu
     on_main_menu = False
-    game_over, start_shifting = False, False
+    restart, game_over, start_shifting = False, False, False
     world = World()
     player = Player(world)
     player.force_stop()
@@ -300,11 +302,11 @@ def game():
     start = time.time()
     while not on_main_menu:
         delta = time.time() - start
-        print(delta)  # somehow reduces lag
+        # print(delta)  # somehow reduces lag
         start = time.time()
-        # TODO: made background with vines
+        # TODO: make background with vines
         if not pygame.mouse.get_focused():
-            pause_menu(player)
+            if pause_menu(player) == 'Main Menu': return 'Main Menu'
             # TODO: return something
             # continue ?
         for event in pygame.event.get():
@@ -321,8 +323,7 @@ def game():
                 elif left_key: player.go_left()
                 elif event.key in (K_UP, K_w, K_SPACE): player.jump()
                 elif event.key == K_ESCAPE and not pressed_keys[K_p] or event.key == K_p and not pressed_keys[K_ESCAPE]:
-                    pause_menu(player)
-                    # TODO: return something
+                    if pause_menu(player) == 'Main Menu': return 'Main Menu'
                 # elif event.key == K_TAB: print('test')
             if event.type == pygame.KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
@@ -353,7 +354,7 @@ def game():
         screen.blit(text_bg, text_rect)
         pygame.display.update()
         clock.tick(60)
-    if game_over: end_game(score)
+    if game_over: return end_game(score) # always runs
 
 
 main_menu()

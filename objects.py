@@ -143,7 +143,7 @@ class Player(pygame.sprite.Sprite):
     def gravity(self):
         self.on_ground = False
         for platform in pygame.sprite.spritecollide(self, self.world.platform_list, False):
-            if self.rect.bottom >= platform.rect.top + self.GROUND_ADJUSTMENT:
+            if self.rect.bottom == platform.rect.top + self.GROUND_ADJUSTMENT:
                 self.on_ground = True
                 break
         if not self.on_ground:
@@ -191,17 +191,12 @@ class Player(pygame.sprite.Sprite):
 
     def stop(self, pressed_keys):
         if self.speed[0] == 0:
-
             # if right keys are still pressed
             if pressed_keys[pygame.K_RIGHT] or pressed_keys[pygame.K_d]: self.speed[0] += self.RUNNING_SPEED
-
-            # Left keys still pressed
+            # if left keys are still pressed
             if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_a]: self.speed[0] -= self.RUNNING_SPEED
-
-            if self.speed[0] > 0:
-                self.facing_left = False
-            elif self.speed[0] < 0:
-                self.facing_left = True
+            if self.speed[0] > 0: self.facing_left = False
+            elif self.speed[0] < 0: self.facing_left = True
 
         elif (pressed_keys[pygame.K_LEFT] + pressed_keys[pygame.K_a] +
               pressed_keys[pygame.K_RIGHT] + pressed_keys[pygame.K_d] == 0):
@@ -323,7 +318,7 @@ class World(object):
             platform.collide_rect.y += shift_y
             if platform.rect.y < farthest_y:
                 farthest_y = platform.rect.y
-            if platform.rect.top > self.screen_height + 1.5 * platform.rect.height:
+            if platform.rect.top > self.screen_height + 2 * platform.rect.height:
                 remove_platforms = True
                 platforms_to_remove.append(platform)
         if farthest_y > 0:
