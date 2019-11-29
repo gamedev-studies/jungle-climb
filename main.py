@@ -214,9 +214,8 @@ def pause_menu(player):
                     break
             elif event.type == MOUSEBUTTONDOWN: click = True
             elif event.type == pygame.KEYUP:
-                if event.key in (pygame.K_d, pygame.K_RIGHT, pygame.K_a, pygame.K_LEFT):
-                    print(pressed_keys)
-                    player.stop(pressed_keys)
+                if event.key in (K_d, K_RIGHT, K_a, K_LEFT):
+                    player.stop(pygame.key.get_pressed())
                     player.facing_left = facing_left
 
         if button('R E S U M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,

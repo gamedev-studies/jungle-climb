@@ -190,6 +190,7 @@ class Player(pygame.sprite.Sprite):
             self.animation_frame = 'running'
 
     def stop(self, pressed_keys):
+
         if self.speed[0] == 0:
             # if right keys are still pressed
             if pressed_keys[pygame.K_RIGHT] or pressed_keys[pygame.K_d]: self.speed[0] += self.RUNNING_SPEED
