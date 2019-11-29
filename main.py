@@ -5,7 +5,7 @@ from ctypes import windll
 import time
 
 from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, \
-    MOUSEBUTTONDOWN, QUIT, KEYDOWN, K_TAB
+    MOUSEBUTTONDOWN, QUIT, KEYUP, KEYDOWN, K_TAB, K_v, K_h, K_BACKSPACE, K_q, K_m, K_r
 import pygame
 
 # CONSTANTS
@@ -38,8 +38,8 @@ SMALL_TEXT, SCORE_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(25 / 1440 * c
 
 pygame.display.set_caption('Jungle Climb')
 clock = pygame.time.Clock()
+ticks = 0
 
-on_end_screen, on_main_menu, ticks = False, True, 0
 if getattr(sys, 'frozen', False): os.chdir(sys._MEIPASS)
 from objects import *
 
@@ -113,8 +113,6 @@ def button(text, x, y, w, h, inactive_colour, active_colour, click, text_colour=
 
 
 def view_high_scores():
-    global on_main_menu
-    on_main_menu = False
     screen.fill(WHITE)
     text_surf, text_rect = text_objects('High Scores', LARGE_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 6))
@@ -125,20 +123,18 @@ def view_high_scores():
         text_surf, text_rect = text_objects(score, MEDIUM_TEXT)
         text_rect.center = ((SCREEN_WIDTH / 2), ((i/1.5 + 3) * SCREEN_HEIGHT / 11))
         screen.blit(text_surf, text_rect)
-    on_high_score = True
-    while on_high_score:
+    on_high_scores = True
+    while on_high_scores:
         click = False
         pressed_keys = pygame.key.get_pressed()
         for event in pygame.event.get():
-            alt_f4 = (event.type == pygame.KEYDOWN and event.key == pygame.K_F4
+            alt_f4 = (event.type == KEYDOWN and event.key == pygame.K_F4
                       and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT]))
-            if event.type == pygame.QUIT or alt_f4: sys.exit()
-            if event.type == MOUSEBUTTONDOWN:
-                click = True
-
+            if event.type == QUIT or alt_f4: sys.exit()
+            elif event.type == KEYDOWN and (event.key == K_ESCAPE or event.key == K_BACKSPACE): on_high_scores = False
+            elif event.type == MOUSEBUTTONDOWN: click = True
         if button('B A C K', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 4 / 5,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
-            on_high_score = False
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE): break
         pygame.display.update()
         # clock.tick(60)
 
@@ -151,37 +147,38 @@ def main_menu_setup():
 
 
 def main_menu():
-    global ticks, on_main_menu
+    global ticks
     main_menu_setup()
-    on_main_menu = True
     button_width = SCREEN_WIDTH * 0.20833333333333334
     button_height = SCREEN_HEIGHT * 0.06172839506172839
     ticks = pygame.time.get_ticks()
+    start_game = view_hs = False
     while True:
         click = False
         pressed_keys = pygame.key.get_pressed()
         for event in pygame.event.get():
-            alt_f4 = (event.type == KEYDOWN and event.key == K_F4
-                      and (pressed_keys[K_LALT] or pressed_keys[K_RALT]))
-            if event.type == pygame.QUIT or alt_f4: sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                click = True
+            alt_f4 = (event.type == KEYDOWN and (event.key == K_F4
+                      and (pressed_keys[K_LALT] or pressed_keys[K_RALT])
+                      or event.key == K_q or event.key == K_ESCAPE))
+            if event.type == QUIT or alt_f4: sys.exit()
+            elif event.type == KEYDOWN and event.key == K_SPACE: start_game = True
+            elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
+            elif event.type == MOUSEBUTTONDOWN: click = True
 
         if button('S T A R T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
-            game_ended = 'Restart'
-            while game_ended == 'Restart':
-                game_ended = game()
-            main_menu_setup()
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE): start_game = True            
         elif button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE) or view_hs:
             view_high_scores()
+            view_hs = False
             main_menu_setup()
         elif button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
-            sys.exit()
+                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE): sys.exit()
+        if start_game:
+            while start_game: start_game = game() == 'Restart'
+            main_menu_setup()
         pygame.display.update()
-        # clock.tick(60)
+        clock.tick(60)
 
 
 def pause_menu(player):
@@ -209,11 +206,11 @@ def pause_menu(player):
                 left_key = event.key == K_LEFT and not pks[K_a] or event.key == K_a and not pks[K_LEFT]
                 if right_key: player.go_right()
                 elif left_key: player.go_left()
-                if event.key in (pygame.K_ESCAPE, pygame.K_p):
-                    paused = False
-                    break
+                elif event.key in (pygame.K_ESCAPE, pygame.K_p): paused = False
+                elif event.key == K_m: return 'Main Menu'
+                elif event.key == K_SPACE: return 'Resume'
             elif event.type == MOUSEBUTTONDOWN: click = True
-            elif event.type == pygame.KEYUP:
+            elif event.type == KEYUP:
                 if event.key in (K_d, K_RIGHT, K_a, K_LEFT):
                     player.stop(pygame.key.get_pressed())
                     player.facing_left = facing_left
@@ -235,9 +232,9 @@ def pause_menu(player):
 
 
 def end_game_setup(score, from_copy=None):
-    # screen.fill(WHITE)
     if from_copy is not None:
         screen.blit(from_copy, (0, 0))
+        return from_copy
     background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32)
     background.fill((255, 255, 255, 160))
     screen.blit(background, (0, 0))
@@ -251,29 +248,32 @@ def end_game_setup(score, from_copy=None):
 
 
 def end_game(score):
-    global on_end_screen
-    on_end_screen = True
+    view_hs = False
     end_screen_copy = end_game_setup(score)
     button_width, button_height = SCREEN_WIDTH * 0.21, SCREEN_HEIGHT * 0.062
     if save_score(score): pass  # Show "You got a high score!"
-    while on_end_screen:
+    while True:
         click, pressed_keys = False, pygame.key.get_pressed()
         for event in pygame.event.get():
-            alt_f4 = (event.type == pygame.KEYDOWN and event.key == pygame.K_F4
+            alt_f4 = (event.type == KEYDOWN and event.key == pygame.K_F4
                       and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT]))
-            if event.type == pygame.QUIT or alt_f4: sys.exit()
+            if event.type == QUIT or alt_f4: sys.exit()
+            elif event.type == KEYDOWN and (event.key == K_ESCAPE or event.key == K_m): return 'Main Menu'
+            elif event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_r): return 'Restart'
+            elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
             elif event.type == MOUSEBUTTONDOWN: click = True
         if button('R E S T A R T', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
                   button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
-            game()
+            # game()
             return 'Restart'
         elif button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
                     button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             main_menu()
             return 'Main Menu'
         elif button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 8 / 13,
-                    button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+                    button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE) or view_hs:
             view_high_scores()
+            view_hs = False
             end_game_setup(score, end_screen_copy)
         pygame.display.update()
         # clock.tick(60)
@@ -281,8 +281,6 @@ def end_game(score):
 
  
 def game():
-    global on_main_menu
-    on_main_menu = False
     restart, game_over, start_shifting = False, False, False
     world = World()
     player = Player(world)
@@ -304,10 +302,10 @@ def game():
             # continue ?
         for event in pygame.event.get():
             pressed_keys = pygame.key.get_pressed()
-            alt_f4 = (event.type == pygame.KEYDOWN and event.key == K_F4
+            alt_f4 = (event.type == KEYDOWN and event.key == K_F4
                       and (pressed_keys[K_LALT] or pressed_keys[K_RALT]))
-            if event.type == pygame.QUIT or alt_f4: sys.exit()
-            if event.type == pygame.KEYDOWN:
+            if event.type == QUIT or alt_f4: sys.exit()
+            if event.type == KEYDOWN:
                 right_key: bool = event.key == K_RIGHT and not pressed_keys[
                     pygame.K_d] or event.key == K_d and not pressed_keys[K_RIGHT]
                 left_key: bool = event.key == K_LEFT and not pressed_keys[
@@ -318,7 +316,7 @@ def game():
                 elif event.key == K_ESCAPE and not pressed_keys[K_p] or event.key == K_p and not pressed_keys[K_ESCAPE]:
                     if pause_menu(player) == 'Main Menu': return 'Main Menu'
                 # elif event.key == K_TAB: print('test')
-            if event.type == pygame.KEYUP:
+            if event.type == KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
                     player.stop(pressed_keys)
         player.update()
