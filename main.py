@@ -88,7 +88,7 @@ def get_scores(path: str = game_folder + r'\high scores.txt') -> list:
         with open(path) as f:
             return f.read().splitlines()
     except FileNotFoundError:
-        pathlib.Path('/my/directory').mkdir(parents=True, exist_ok=True)
+        pathlib.Path(game_folder).mkdir(parents=True, exist_ok=True)
         with open(path, 'w') as f:
             f.writelines(['0\n'] * 10)
         return [0] * 10
