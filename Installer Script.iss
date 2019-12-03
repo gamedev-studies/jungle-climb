@@ -42,21 +42,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 [Files]
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\main.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\api-ms-win-crt-heap-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\api-ms-win-crt-locale-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\api-ms-win-crt-math-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\api-ms-win-crt-runtime-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\api-ms-win-crt-stdio-l1-1-0.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\jungle tileset.png"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\python36.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\Character\*"; DestDir: "{app}\Character"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\Fonts\*"; DestDir: "{app}\Fonts"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\Jungle Asset Pack\*"; DestDir: "{app}\Jungle Asset Pack"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\sprites\*"; DestDir: "{app}\sprites"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\tcl\*"; DestDir: "{app}\tcl"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#SourcePath}\build\exe.win-amd64-3.6\tk\*"; DestDir: "{app}\tk"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourcePath}\build\exe.win-amd64-3.6\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
