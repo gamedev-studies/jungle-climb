@@ -1,7 +1,7 @@
 # Jungle Climb
+Jungle climb is a platformer made in pygame.
 
-## Download
-Click [here](https://github.com/elibroftw/jungle-climb/releases) to download (Windows 64-bit).
+[Download Page (Windows 64-bit)](https://github.com/elibroftw/jungle-climb/releases)
 
 ## How to run on python
 1. Clone this repository
