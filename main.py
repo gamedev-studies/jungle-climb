@@ -22,8 +22,12 @@ game_folder = os.path.expanduser(r'~\Documents\Jungle Climb')
 
 windll.shcore.SetProcessDpiAwareness(1)
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # center display
+pygame.mixer.pre_init(frequency=44100, buffer=512)
+pygame.mixer.init()
 pygame.init()  # initialize pygame
 current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().current_h
+
+pygame.mixer.Channel(0).play(pygame.mixer.Sound('Audio/background_music.ogg'), loops=-1)
 
 FULLSCREEN = True
 if FULLSCREEN:
@@ -192,6 +196,7 @@ def pause_menu(player):
 
     button_width = SCREEN_WIDTH * 0.20833333333333334
     button_height = SCREEN_HEIGHT * 0.06172839506172839
+    # TODO: stop music
     while paused:
         click = False
         pks = pressed_keys = pygame.key.get_pressed()

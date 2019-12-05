@@ -24,4 +24,6 @@ W / Up Arrow key - Jump
 There are also menu key board shortcuts which can be guessed intuitively (Space, Escape, R, M, V, H)
 
 ## Special Thanks
-Jesse M for the free [jungle pack sprites](https://jesse-m.itch.io/jungle-pack)
+- Jesse M for the free [jungle pack sprites](https://jesse-m.itch.io/jungle-pack)
+- Ross Bugen for the [music](https://www.youtube.com/watch?v=ujsCRw-eA0o)
+- dklon for the [jump sound effect](https://opengameart.org/content/platformer-jumping-sounds)

@@ -8,5 +8,5 @@ setup(
                            'include_files':[
                                ('Jungle Asset Pack/jungle tileset/jungle tileset.png', 'Jungle Asset Pack/jungle tileset/jungle tileset.png'),
                                ('Jungle Asset Pack/Character/sprites/', 'Jungle Asset Pack/Character/sprites/'),
-                               'Fonts/']}},
+                               'Fonts/', 'Audio/']}},
     executables = executables)

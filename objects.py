@@ -6,7 +6,8 @@ from extracter import extract_images, extract_platforms
 
 
 current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().current_h
-
+JUMP_SOUND = pygame.mixer.Sound('Audio/jump.ogg')
+JUMP_SOUND.set_volume(0.3)
 
 def load_image(image):
     return pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
@@ -219,11 +220,13 @@ class Player(pygame.sprite.Sprite):
         """ Called when user hits 'jump' button. """
         #  player can jump to a height of two platforms
         if self.on_ground:
+            pygame.mixer.Channel(1).play(JUMP_SOUND)
             self.image = self.get_image(self.jump_images)
             # self.image = pygame.transform.flip(self.jump_frame, self.FACING_LEFT, False)
             self.speed[1] = self.JUMP_SPEED
             self.on_ground = False
             self.animation_frame = 'jump'
+            
 
 
 class Platform(pygame.sprite.Sprite):
