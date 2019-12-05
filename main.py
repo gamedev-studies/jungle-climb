@@ -8,6 +8,22 @@ from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_
     MOUSEBUTTONDOWN, QUIT, KEYUP, KEYDOWN, K_TAB, K_v, K_h, K_BACKSPACE, K_q, K_m, K_r
 import pygame
 
+
+# Initialization
+windll.shcore.SetProcessDpiAwareness(1)
+os.environ['SDL_VIDEO_CENTERED'] = '1'  # center display
+pygame.mixer.pre_init(frequency=44100, buffer=512)
+pygame.mixer.init()
+pygame.init()
+current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().current_h
+FULLSCREEN = True
+if FULLSCREEN:
+    SCREEN_WIDTH, SCREEN_HEIGHT = current_w, current_h
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+else:
+    SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * current_w), int(0.75 * current_h)
+    screen = pygame.display.set_mode(SIZE)
+
 # CONSTANTS
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
@@ -19,28 +35,11 @@ BLUE = 33, 150, 243
 BACKGROUND = 174, 222, 203
 WORLD_SHIFT_SPEED_PERCENT = 0.00135
 game_folder = os.path.expanduser(r'~\Documents\Jungle Climb')
-
-windll.shcore.SetProcessDpiAwareness(1)
-os.environ['SDL_VIDEO_CENTERED'] = '1'  # center display
-pygame.mixer.pre_init(frequency=44100, buffer=512)
-pygame.mixer.init()
-pygame.init()  # initialize pygame
-current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().current_h
-
-pygame.mixer.Channel(0).play(pygame.mixer.Sound('Audio/background_music.ogg'), loops=-1)
-
-FULLSCREEN = True
-if FULLSCREEN:
-    SCREEN_WIDTH, SCREEN_HEIGHT = current_w, current_h
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-else:
-    SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * current_w), int(0.75 * current_h)
-    screen = pygame.display.set_mode(SIZE)
-
 LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(110 / 1080 * current_h)), pygame.font.Font('Fonts/Verdana.ttf', int(40 / 1080 * current_h))
 SMALL_TEXT, SCORE_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(25 / 1440 * current_h)), pygame.font.Font('Fonts/Verdana.ttf', int(40 / 1440 * current_h))
-
+MUSIC_SOUND = pygame.mixer.Sound('Audio/background_music.ogg')
 pygame.display.set_caption('Jungle Climb')
+music_playing = False
 clock = pygame.time.Clock()
 ticks = 0
 from objects import *
@@ -284,6 +283,7 @@ def end_game(score):
  
 def game():
     restart, game_over, start_shifting = False, False, False
+    if not music_playing: pygame.mixer.Channel(0).play(MUSIC_SOUND), loops=-1)
     world = World()
     player = Player(world)
     player.force_stop()
