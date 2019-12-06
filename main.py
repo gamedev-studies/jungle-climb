@@ -1,8 +1,8 @@
 import pathlib
 import sys
 import os
-from ctypes import windll
 import time
+import platform
 
 from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, \
     MOUSEBUTTONDOWN, QUIT, KEYUP, KEYDOWN, K_TAB, K_v, K_h, K_BACKSPACE, K_q, K_m, K_r
@@ -10,10 +10,11 @@ import pygame
 
 
 # Initialization
-windll.shcore.SetProcessDpiAwareness(1)
+if platform.system() == 'Windows':
+    from ctypes import windll
+    windll.shcore.SetProcessDpiAwareness(1)
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # center display
-pygame.mixer.pre_init(frequency=44100, buffer=512)
-pygame.mixer.init()
+pygame.mixer.init(frequency=44100, buffer=512)
 pygame.init()
 current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().current_h
 FULLSCREEN = True
@@ -283,7 +284,7 @@ def end_game(score):
  
 def game():
     restart, game_over, start_shifting = False, False, False
-    if not music_playing: pygame.mixer.Channel(0).play(MUSIC_SOUND), loops=-1)
+    if not music_playing: pygame.mixer.Channel(0).play(MUSIC_SOUND, loops=-1)
     world = World()
     player = Player(world)
     player.force_stop()
