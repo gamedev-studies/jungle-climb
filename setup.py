@@ -1,15 +1,26 @@
 from cx_Freeze import setup, Executable
+import subprocess
+import sys
+
 
 NAME = 'Jungle Climb'
+VERSION = '1.5'
+PACKAGES = ['pygame']
+installed_packages = reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze']).decode('utf-8')
+installed_packages = installed_packages.split('\r\n')
+EXCLUDES = [pkg.split('==')[0] for pkg in installed_packages]
+for pkg in PACKAGES:
+    EXCLUDES.remove(pkg)
+
+
 executables = [Executable('main.py', base='Win32GUI', icon='Resources/Jungle Climb Icon.ico', targetName=NAME)]
 
 setup(
     name=NAME,
-    version='1.4',
+    version=VERSION,
     description=f'{NAME} Copyright 2019 Elijah Lopez',
-    options={'build_exe': {'packages': ['pygame'],
+    options={'build_exe': {'packages': PACKAGES,
                            'include_files': ['Assets'],
-                           'excludes': ['tkinter', 'PySide2', 'PyQt5', 'numpy', 'pillow', 'multiprocessing', 'email', 'json', 'test', 'unittest'],
-                           'optimize': 2
-                           }},
+                           'excludes': EXCLUDES,
+                           'optimize': 2}},
     executables=executables)
