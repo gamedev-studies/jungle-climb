@@ -1,3 +1,2 @@
 pygame
-pillow
 cx_freeze

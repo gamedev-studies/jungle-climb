@@ -6,12 +6,12 @@ from extracter import extract_images, extract_platforms
 
 
 current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().current_h
-JUMP_SOUND = pygame.mixer.Sound('Audio/jump.ogg')
+JUMP_SOUND = pygame.mixer.Sound('Assets/Audio/jump.ogg')
 JUMP_SOUND.set_volume(0.3)
 
 
-def load_image(image):
-    return pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
+# def load_image(image):
+#     return pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
 
 
 def scale_image(image: pygame.Surface, scale_factor) -> pygame.Surface:
@@ -39,11 +39,11 @@ class Player(pygame.sprite.Sprite):
     speed = [0, 0]
 
     animation_frame = 'idle'
-    idle_sprite_path = 'Jungle Asset Pack/Character/sprites/idle.png'
-    jump_sprite_path = 'Jungle Asset Pack/Character/sprites/jump.png'
-    landing_sprite_path = 'Jungle Asset Pack/Character/sprites/landing.png'
-    mid_air_sprite_path = 'Jungle Asset Pack/Character/sprites/mid air.png'
-    run_sprite_path = 'Jungle Asset Pack/Character/sprites/run.png'
+    idle_sprite_path = 'Assets/sprites/idle.png'
+    jump_sprite_path = 'Assets/sprites/jump.png'
+    landing_sprite_path = 'Assets/sprites/landing.png'
+    mid_air_sprite_path = 'Assets/sprites/mid air.png'
+    run_sprite_path = 'Assets/sprites/run.png'
 
     RUNNING_SPEED = round(current_w / 200)
     JUMP_SPEED = round(current_h / -40.5)
@@ -54,7 +54,7 @@ class Player(pygame.sprite.Sprite):
     idle_images_left = []
     idle_images = [idle_images_right, idle_images_left]
     for image in extract_images(idle_sprite_path, 19):  # 21 with outline, 19 without
-        image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
+        # image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
         image = scale_image(image, scale_factor)
         idle_images_right.append(image)
         idle_images_left.append(pygame.transform.flip(image, True, False))
@@ -71,7 +71,7 @@ class Player(pygame.sprite.Sprite):
     mid_air_images_left = []
     mid_air_images = [mid_air_images_right, mid_air_images_left]
     for image in extract_images(mid_air_sprite_path, 20):  # 22 with outline , 20 without
-        image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
+        # image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
         image = scale_image(image, scale_factor)
         mid_air_images_right.append(image)
         mid_air_images_left.append(pygame.transform.flip(image, True, False))
@@ -80,7 +80,7 @@ class Player(pygame.sprite.Sprite):
     run_images_left = []
     run_images = [run_images_right, run_images_left]
     for image in extract_images(run_sprite_path, 21):  # 23 with outline, 21 without
-        image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
+        # image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
         image = scale_image(image, scale_factor)
         run_images_right.append(image)
         run_images_left.append(pygame.transform.flip(image, True, False))
@@ -235,7 +235,8 @@ class Platform(pygame.sprite.Sprite):
     side_length = TILESET_SIDELENGTH = 27
     scale_factor = PERCENT_OF_SCREEN_HEIGHT * current_h / TILESET_SIDELENGTH
     # side_length = int(side_length * scale_factor)
-    images = [load_image(image) for image in extract_platforms()]
+    # images = [load_image(image) for image in extract_platforms()]
+    images = extract_platforms()
     image_0 = scale_image(images[0], scale_factor)
     image_1 = scale_image(images[1], scale_factor)
     image_2 = scale_image(images[2], scale_factor)

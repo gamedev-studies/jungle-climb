@@ -41,9 +41,10 @@ BLUE = 33, 150, 243
 BACKGROUND = 174, 222, 203
 WORLD_SHIFT_SPEED_PERCENT = 0.00135
 game_folder = os.path.expanduser(r'~\Documents\Jungle Climb')
-LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(110 / 1080 * current_h)), pygame.font.Font('Fonts/Verdana.ttf', int(40 / 1080 * current_h))
-SMALL_TEXT, SCORE_TEXT = pygame.font.Font('Fonts/Verdana.ttf', int(25 / 1440 * current_h)), pygame.font.Font('Fonts/Verdana.ttf', int(40 / 1440 * current_h))
-MUSIC_SOUND = pygame.mixer.Sound('Audio/background_music.ogg')
+VERDANA = 'Assets/Fonts/Verdana.ttf'
+LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font(VERDANA, int(110 / 1080 * current_h)), pygame.font.Font(VERDANA, int(40 / 1080 * current_h))
+SMALL_TEXT, SCORE_TEXT = pygame.font.Font(VERDANA, int(25 / 1440 * current_h)), pygame.font.Font(VERDANA, int(40 / 1440 * current_h))
+MUSIC_SOUND = pygame.mixer.Sound('Assets/Audio/background_music.ogg')
 pygame.display.set_caption('Jungle Climb')
 music_playing = False
 clock = pygame.time.Clock()

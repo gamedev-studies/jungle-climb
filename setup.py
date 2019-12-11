@@ -10,9 +10,5 @@ setup(
     description=NAME,
     copyright='Copyright 2019 Elijah Lopez',
     options={'build_exe': {'packages': ['pygame', 'PIL'],
-                           'include_files': [
-                               ('Jungle Asset Pack/jungle tileset/jungle tileset.png',
-                                'Jungle Asset Pack/jungle tileset/jungle tileset.png'),
-                               ('Jungle Asset Pack/Character/sprites/', 'Jungle Asset Pack/Character/sprites/'),
-                               'Fonts/', 'Audio/']}},
+                           'include_files': ['Assets']}},
     executables=executables)
