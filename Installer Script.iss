@@ -5,8 +5,8 @@
 #define MyAppVersion "1.2"
 #define MyAppPublisher "Elijah Lopez"
 #define MyAppURL "https://elijahlopez.herokuapp.com/"
-#define MyAppExeName "main.exe"
-#define MyAppNewName "Jungle Climb.exe"
+#define MyAppExeName "Jungle Climb.exe"
+; #define MyAppNewName "Jungle Climb.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -14,7 +14,7 @@
 AppId={{46078D58-2849-4CDD-9A51-A2C5F06F2B87}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
+; AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
