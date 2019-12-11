@@ -9,6 +9,7 @@ current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().cu
 JUMP_SOUND = pygame.mixer.Sound('Audio/jump.ogg')
 JUMP_SOUND.set_volume(0.3)
 
+
 def load_image(image):
     return pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
 
@@ -167,7 +168,7 @@ class Player(pygame.sprite.Sprite):
             if self.speed[1] > 0 and self.rect.bottom > platform.rect.top + self.GROUND_ADJUSTMENT:  # going down
                 self.rect.bottom = platform.rect.top + self.GROUND_ADJUSTMENT
                 self.speed[1] = 0
-            elif self.speed[1] < 0:  # going up
+            elif self.speed[1] < 0 and platform.rect.top < self.rect.top < platform.rect.bottom:  # going up
                 self.rect.top = platform.rect.bottom
                 self.speed[1] = 0
 
@@ -220,14 +221,13 @@ class Player(pygame.sprite.Sprite):
         """ Called when user hits 'jump' button. """
         #  player can jump to a height of two platforms
         if self.on_ground:
-            pygame.mixer.Channel(1).play(JUMP_SOUND)
+            # pygame.mixer.Channel(1).play(JUMP_SOUND)
             self.image = self.get_image(self.jump_images)
             # self.image = pygame.transform.flip(self.jump_frame, self.FACING_LEFT, False)
             self.speed[1] = self.JUMP_SPEED
             self.on_ground = False
             self.animation_frame = 'jump'
             
-
 
 class Platform(pygame.sprite.Sprite):
     PERCENT_OF_SCREEN_HEIGHT = 0.07901234567901234

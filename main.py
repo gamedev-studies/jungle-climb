@@ -77,11 +77,11 @@ def save_score(user_score: int, path: str = game_folder + '/High Scores.txt') ->
     except FileNotFoundError:
         pathlib.Path(game_folder).mkdir(parents=True, exist_ok=True)
         with open(path, 'w') as f:
-            f.writelines([str(user_score) + '\n'] + ['0\n'] * 9)
+            f.writelines([str(user_score) + '\n'] + ['0\n'] * 8)
         return True
 
 
-def get_scores(path: str = game_folder + r'\high scores.txt') -> list:
+def get_scores(path: str = game_folder + r'\High Scores.txt') -> list:
     """
     Gets the list of top 10 scores
     :param path: path to the scores
@@ -92,10 +92,11 @@ def get_scores(path: str = game_folder + r'\high scores.txt') -> list:
         with open(path) as f:
             return f.read().splitlines()
     except FileNotFoundError:
+        temp_scores = ['0' for _ in range(9)]
         pathlib.Path(game_folder).mkdir(parents=True, exist_ok=True)
         with open(path, 'w') as f:
-            f.writelines(['0\n'] * 10)
-        return [0] * 10
+            f.writelines(map(lambda x: x + '\n', temp_scores))
+        return temp_scores
 
 
 def button(text, x, y, w, h, inactive_colour, active_colour, click, text_colour=BLACK):
@@ -281,10 +282,9 @@ def end_game(score):
         # clock.tick(60)
 
 
- 
 def game():
     restart, game_over, start_shifting = False, False, False
-    if not music_playing: pygame.mixer.Channel(0).play(MUSIC_SOUND, loops=-1)
+    # if not music_playing: pygame.mixer.Channel(0).play(MUSIC_SOUND, loops=-1)
     world = World()
     player = Player(world)
     player.force_stop()
