@@ -6,7 +6,7 @@ executables = [Executable('main.py', base='Win32GUI', icon='Resources/Jungle Cli
 setup(
     name=NAME,
     silent=True,
-    version='1.2',
+    version='1.3',
     description=NAME,
     copyright='Copyright 2019 Elijah Lopez',
     options={'build_exe': {'packages': ['pygame', 'PIL'],
