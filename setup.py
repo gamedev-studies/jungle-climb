@@ -5,10 +5,11 @@ executables = [Executable('main.py', base='Win32GUI', icon='Resources/Jungle Cli
 
 setup(
     name=NAME,
-    silent=True,
-    version='1.3',
-    description=NAME,
-    copyright='Copyright 2019 Elijah Lopez',
-    options={'build_exe': {'packages': ['pygame', 'PIL'],
-                           'include_files': ['Assets']}},
+    version='1.4',
+    description=f'{NAME} Copyright 2019 Elijah Lopez',
+    options={'build_exe': {'packages': ['pygame'],
+                           'include_files': ['Assets'],
+                           'excludes': ['tkinter', 'PySide2', 'PyQt5', 'numpy', 'pillow', 'multiprocessing', 'email', 'json', 'test', 'unittest'],
+                           'optimize': 2
+                           }},
     executables=executables)
