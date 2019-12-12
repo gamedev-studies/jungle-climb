@@ -336,10 +336,6 @@ def game():
             if score > 1000 * world_shift_speed + (world_shift_speed - 1) * 1000:
                 world_shift_speed = min(world_shift_speed * 2, round(WORLD_SHIFT_SPEED_PERCENT * SCREEN_HEIGHT) * 4)
         elif player.rect.top < 0.75 * SCREEN_HEIGHT: start_shifting = True
-
-        if player.rect.top > SCREEN_HEIGHT + player.rect.height:
-            game_over = True
-            break
         screen.fill(BACKGROUND)
         all_sprites_list.draw(screen)
         world.draw(screen)
@@ -352,7 +348,10 @@ def game():
         text_bg.fill((50, 50, 50, 160))
         text_bg.blit(text_surf, (text_bg_w // 15, 0))
         screen.blit(text_bg, text_rect)
-        pygame.display.update()
+        pygame.display.update()        
+        if player.rect.top > SCREEN_HEIGHT + player.rect.height:
+            game_over = True
+            break
         clock.tick(60)
     if game_over: return end_game(score) # always runs
 
