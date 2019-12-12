@@ -1,17 +1,17 @@
 # Jungle Climb
-Jungle climb is a platformer made in pygame.
+A platformer I made with pygame as an experiment.
 
-[Download Page (Windows 64-bit)](https://github.com/elibroftw/jungle-climb/releases)
+## [Download Page (Windows 64-bit)](https://github.com/elibroftw/jungle-climb/releases)
 
-## How to run on python
+## Python Instructions
 1. Clone this repository
 2. You will need python 3.6+ with pip
 3. `pip install -r requirements.txt`
 4. Run main.py
 
-## To build an EXE
+## Build instructions (Windows only for now)
 1. Follow the previous procedure
-2. Have Inno Setup installed and on PATH
+2. Have Inno Setup installed and on PATH (Windows only)
 3. Run build.cmd or `python setup.py build && iscc "Installer Script.iss"`
 
 ## Controls
