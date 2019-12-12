@@ -153,6 +153,9 @@ def main_menu_setup():
     text_surf, text_rect = text_objects('Jungle Climb', LARGE_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
     screen.blit(text_surf, text_rect)
+    text_surf, text_rect = text_objects('Created by Elijah Lopez', MEDIUM_TEXT)
+    text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT * 0.84))
+    screen.blit(text_surf, text_rect)
 
 
 def main_menu():
