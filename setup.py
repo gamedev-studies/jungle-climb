@@ -8,7 +8,8 @@ VERSION = '1.5'
 PACKAGES = ['pygame']
 installed_packages = reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze']).decode('utf-8')
 installed_packages = installed_packages.split('\r\n')
-EXCLUDES = [pkg.split('==')[0] for pkg in installed_packages]
+EXCLUDES = [pkg.split('==')[0] for pkg in installed_packages if pkg != '']
+print(EXCLUDES)
 for pkg in PACKAGES:
     EXCLUDES.remove(pkg)
 
