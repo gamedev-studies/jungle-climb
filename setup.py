@@ -1,10 +1,10 @@
 from cx_Freeze import setup, Executable
 import subprocess
 import sys
+from main import VERSION
 
 
 NAME = 'Jungle Climb'
-VERSION = '1.6'
 PACKAGES = ['pygame']
 installed_packages = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze']).decode('utf-8')
 installed_packages = installed_packages.split('\r\n')

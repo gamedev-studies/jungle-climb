@@ -12,6 +12,7 @@ import pygame
 
 
 # Initialization
+VERSION = '1.6'
 if platform.system() == 'Windows':
     from ctypes import windll
     windll.shcore.SetProcessDpiAwareness(1)
@@ -152,6 +153,9 @@ def main_menu_setup():
     screen.fill(WHITE)
     text_surf, text_rect = text_objects('Jungle Climb', LARGE_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
+    screen.blit(text_surf, text_rect)
+    text_surf, text_rect = text_objects(f'v{VERSION}', SMALL_TEXT)
+    text_rect.center = ((SCREEN_WIDTH * 0.98), (SCREEN_HEIGHT * 0.98))
     screen.blit(text_surf, text_rect)
     text_surf, text_rect = text_objects('Created by Elijah Lopez', MEDIUM_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT * 0.84))
@@ -375,4 +379,4 @@ def game():
     if game_over: return end_game(score) # always runs
 
 
-main_menu()
+if __name__ == '__main__': main_menu()
