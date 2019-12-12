@@ -4,7 +4,7 @@ import sys
 
 
 NAME = 'Jungle Climb'
-VERSION = '1.5'
+VERSION = '1.6'
 PACKAGES = ['pygame']
 installed_packages = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze']).decode('utf-8')
 installed_packages = installed_packages.split('\r\n')

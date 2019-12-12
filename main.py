@@ -219,6 +219,7 @@ def pause_menu(player):
                 elif event.key in (pygame.K_ESCAPE, pygame.K_p): paused = False
                 elif event.key == K_m: return 'Main Menu'
                 elif event.key == K_SPACE: return 'Resume'
+                elif event.key == K_q: sys.exit()
             elif event.type == MOUSEBUTTONDOWN: click = True
             elif event.type == KEYUP:
                 if event.key in (K_d, K_RIGHT, K_a, K_LEFT):
@@ -297,7 +298,9 @@ def game():
     all_sprites_list = pygame.sprite.Group(player)
     world.player = player
     world_shift_speed = round(WORLD_SHIFT_SPEED_PERCENT * SCREEN_HEIGHT)  # NOTE: percent of screen
-    score = 0
+    speed_increment = world_shift_speed
+    MAX_SPEED = speed_increment * 4
+    speed_level, score = 1, 0
     text_anchor = round(0.997 * SCREEN_WIDTH), 0
     start = time.time()
     while True:
@@ -306,9 +309,11 @@ def game():
         start = time.time()
         # TODO: make background with vines
         if not pygame.mouse.get_focused():
+            # pygame.mixer_music.Channel(0).pause()
+            # music_playing = False
             if pause_menu(player) == 'Main Menu': return 'Main Menu'
-            # TODO: return something
-            # continue ?
+            # pygame.mixer_music.Channel(0).resume()
+            # music_playing = True
         for event in pygame.event.get():
             pressed_keys = pygame.key.get_pressed()
             alt_f4 = (event.type == KEYDOWN and event.key == K_F4
@@ -323,8 +328,14 @@ def game():
                 elif left_key: player.go_left()
                 elif event.key in (K_UP, K_w, K_SPACE): player.jump()
                 elif event.key == K_ESCAPE and not pressed_keys[K_p] or event.key == K_p and not pressed_keys[K_ESCAPE]:
+                    # pygame.mixer_music.Channel(0).pause()
+                    # music_playing = False
                     if pause_menu(player) == 'Main Menu': return 'Main Menu'
-                # elif event.key == K_TAB: print('test')
+                    # pygame.mixer_music.Channel(0).resume()
+                    # music_playing = True
+                # elif event.key == pygame.K_EQUALS: world.shift_world(shift_x=30)
+                # elif event.key == pygame.K_MINUS: world.shift_world(shift_x=-30)
+                # elif event.key == K_TAB: pass
             if event.type == KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
                     player.stop(pressed_keys)
@@ -333,8 +344,11 @@ def game():
             # if pygame.time.get_ticks() % 2 == 0:
             world.shift_world(world_shift_speed)
             score += 1
+            # if score > 1000 * speed_level:
+            #     world_shift_speed = min(world_shift_speed + speed_increment, MAX_SPEED)
+            #     speed_level += 1
             if score > 1000 * world_shift_speed + (world_shift_speed - 1) * 1000:
-                world_shift_speed = min(world_shift_speed * 2, round(WORLD_SHIFT_SPEED_PERCENT * SCREEN_HEIGHT) * 4)
+                world_shift_speed = min(world_shift_speed * 2, MAX_SPEED)
         elif player.rect.top < 0.75 * SCREEN_HEIGHT: start_shifting = True
         screen.fill(BACKGROUND)
         all_sprites_list.draw(screen)
@@ -351,6 +365,8 @@ def game():
         pygame.display.update()        
         if player.rect.top > SCREEN_HEIGHT + player.rect.height:
             game_over = True
+            # pygame.mixer_music.Channel(0).stop()
+            # music_playing = False
             break
         clock.tick(60)
     if game_over: return end_game(score) # always runs

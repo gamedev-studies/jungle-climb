@@ -260,7 +260,6 @@ class Platform(pygame.sprite.Sprite):
 
 
 class World(object):
-    TILESET_SIDELENGTH = 27
     P_PLATFORM = 0.8  # probability of platforms
     difficulty = 1
 
@@ -281,44 +280,45 @@ class World(object):
         for x in range(1, ceil(self.screen_height / self.tileset_new_sidelength / 3)):
             # platforms are every 3 heights
             self.create_platforms(self.screen_height - self.tileset_new_sidelength * (1 + 3 * x))
-        # todo: randomly generate the rest of the world as player goes up
 
     def draw(self, screen):
         self.platform_list.draw(screen)
 
-    def create_platforms(self, pos_y, difficulty=1):
-        # note: player can jump to a height of two platforms
-        safety = -1
-        # self.number_of_spots = self.screen_width // self.tileset_new_sidelength
-        # note: spaces should be at 1.5x to 3x a tileset_new_sidelength
-        for x in range(self.screen_width):
-            if random.random() <= self.P_PLATFORM and x > safety:
-                if difficulty > 1:
-                    num_of_platforms = random.randint(5, 13)
-                else:
-                    num_of_platforms = random.randint(3, 10)
-                safety = x + num_of_platforms * self.tileset_new_sidelength + random.choice(
-                    [1.5, 2, 2.5]) * self.tileset_new_sidelength
-                for y in range(num_of_platforms):
-                    if y == 0: platform_type = 'left'
-                    elif y == num_of_platforms - 1:  platform_type = 'right'
+    def create_platforms(self, pos_y):
+        # Note: player can jump to a height of two platforms
+        # TODO: redo
+        safe_spaces = 1.75, 2, 2.5, 3, 3.5, 4
+        starting_pos = int(random.choice([-1, 0, 1, 1.5]) * self.tileset_new_sidelength)
+        safety = starting_pos - 1
+        for x in range(starting_pos, self.screen_width, int(self.tileset_new_sidelength * 0.25)):
+            if x > safety:
+                max_tiles = max(((self.screen_width - x) // self.tileset_new_sidelength), 2)
+                num_of_tiles = min(random.randint(3, 10), max_tiles)
+                safety = x + num_of_tiles * self.tileset_new_sidelength + random.choice(
+                    safe_spaces) * self.tileset_new_sidelength
+                for tile_number in range(num_of_tiles):
+                    if tile_number == 0: platform_type = 'left'
+                    elif tile_number == num_of_tiles - 1:  platform_type = 'right'
                     else: platform_type = 'centre'
-                    platform = Platform(x + y * self.tileset_new_sidelength, pos_y, platform_type)
+                    platform = Platform(x + tile_number * self.tileset_new_sidelength, pos_y, platform_type)
                     self.platform_list.add(platform)
-            elif x > safety:
-                safety = x + 1.5 * self.tileset_new_sidelength
 
-    def shift_world(self, shift_y):
+
+    def shift_world(self, shift_y=0, shift_x=0):
         """For automated scrolling"""
         remove_platforms = False
         platforms_to_remove = []
         farthest_y = self.screen_height
         # Go through all the sprite lists and shift
         self.player.rect.y += shift_y
+        self.player.rect.x += shift_x
         self.player.collide_rect.y += shift_y
+        self.player.collide_rect.x += shift_x
         for platform in self.platform_list:
             platform.rect.y += shift_y
             platform.collide_rect.y += shift_y
+            platform.rect.x += shift_x
+            platform.collide_rect.x += shift_x
             if platform.rect.y < farthest_y:
                 farthest_y = platform.rect.y
             if platform.rect.top > self.screen_height + 2 * platform.rect.height:
