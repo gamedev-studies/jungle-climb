@@ -1,17 +1,19 @@
-import pathlib
-import sys
-import os
-import time
-import platform
-import io
 import base64
+import io
+import os
+import pathlib
+import platform
+import sys
+import time
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'True'
 
 from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, \
     MOUSEBUTTONDOWN, QUIT, KEYUP, KEYDOWN, K_TAB, K_v, K_h, K_BACKSPACE, K_q, K_m, K_r
 import pygame
 
 
-VERSION = '1.6'
+VERSION = '1.7'
 # CONSTANTS
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
@@ -100,13 +102,13 @@ def view_high_scores():
     text_surf, text_rect = text_objects('High Scores', LARGE_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 6))
     screen.blit(text_surf, text_rect)
-    button_width = SCREEN_WIDTH * 0.625 / 3
-    button_height = SCREEN_HEIGHT * 5 / 81
     for i, score in enumerate(get_scores()):
         text_surf, text_rect = text_objects(score, MEDIUM_TEXT)
         text_rect.center = ((SCREEN_WIDTH / 2), ((i/1.5 + 3) * SCREEN_HEIGHT / 11))
         screen.blit(text_surf, text_rect)
     on_high_scores = True
+    pygame.display.update()
+    button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 4 / 5, BUTTON_WIDTH, BUTTON_HEIGHT)]
     while on_high_scores:
         click = False
         pressed_keys = pygame.key.get_pressed()
@@ -116,9 +118,8 @@ def view_high_scores():
             if event.type == QUIT or alt_f4: sys.exit()
             elif event.type == KEYDOWN and (event.key == K_ESCAPE or event.key == K_BACKSPACE): on_high_scores = False
             elif event.type == MOUSEBUTTONDOWN: click = True
-        if button('B A C K', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 4 / 5,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE): break
-        pygame.display.update()
+        if button('B A C K', *button_rects[0], BLUE, LIGHT_BLUE, click, text_colour=WHITE): break
+        pygame.display.update(button_rects)
         clock.tick(60)
 
 
@@ -133,15 +134,17 @@ def main_menu_setup():
     text_surf, text_rect = text_objects('Created by Elijah Lopez', MEDIUM_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT * 0.84))
     screen.blit(text_surf, text_rect)
+    pygame.display.update()
 
 
 def main_menu():
     global ticks
     main_menu_setup()
-    button_width = SCREEN_WIDTH * 0.20833333333333334
-    button_height = SCREEN_HEIGHT * 0.06172839506172839
     ticks = pygame.time.get_ticks()
     start_game = view_hs = False
+    button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 5 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 6 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 7 / 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
     while True:
         click = False
         pressed_keys = pygame.key.get_pressed()
@@ -154,19 +157,16 @@ def main_menu():
             elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
             elif event.type == MOUSEBUTTONDOWN: click = True
 
-        if button('S T A R T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE): start_game = True            
-        elif button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE) or view_hs:
+        if button('S T A R T  G A M E', *button_rects[0], BLUE, LIGHT_BLUE, click, text_colour=WHITE): start_game = True            
+        elif button('V I E W  H I G H S C O R E S', *button_rects[1], BLUE, LIGHT_BLUE, click, text_colour=WHITE) or view_hs:
             view_high_scores()
             view_hs = False
             main_menu_setup()
-        elif button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE): sys.exit()
+        elif button('Q U I T  G A M E', *button_rects[2], BLUE, LIGHT_BLUE, click, text_colour=WHITE): sys.exit()
         if start_game:
             while start_game: start_game = game() == 'Restart'
             main_menu_setup()
-        pygame.display.update()
+        pygame.display.update(button_rects)
         clock.tick(60)
 
 
@@ -180,9 +180,10 @@ def pause_menu(player):
     text_surf, text_rect = text_objects('Pause Menu', LARGE_TEXT)
     text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
     screen.blit(text_surf, text_rect)
-
-    button_width = SCREEN_WIDTH * 0.20833333333333334
-    button_height = SCREEN_HEIGHT * 0.06172839506172839
+    pygame.display.update()
+    button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 5 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 6 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 7 / 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
     # TODO: stop music
     while paused:
         click = False
@@ -206,36 +207,35 @@ def pause_menu(player):
                     player.stop(pygame.key.get_pressed())
                     player.facing_left = facing_left
 
-        if button('R E S U M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 5 / 13,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+        if button('R E S U M E', *button_rects[0], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             return 'Resume'
 
-        if button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+        if button('M A I N  M E N U', *button_rects[1], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             return 'Main Menu'
 
-        if button('Q U I T  G A M E', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+        if button('Q U I T  G A M E', *button_rects[2], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             sys.exit()
-        pygame.display.update()
+        pygame.display.update(button_rects)
         clock.tick(60)
     return 'Resume'
 
 
-def end_game_setup(score, from_copy=None):
-    if from_copy is not None:
-        screen.blit(from_copy, (0, 0))
-        return from_copy
-    background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32)
-    background.fill((255, 255, 255, 160))
-    screen.blit(background, (0, 0))
-    text_surf, text_rect = text_objects('Game Over', LARGE_TEXT)
-    text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
-    screen.blit(text_surf, text_rect)
-    text_surf, text_rect = text_objects(f'You scored {score}', MEDIUM_TEXT)
-    text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT * 8 / 21))
-    screen.blit(text_surf, text_rect)
-    return pygame.display.get_surface().copy()
+def end_game_setup(score, surface_copy=None):
+    if surface_copy is not None:
+        screen.blit(surface_copy, (0, 0))
+    else:
+        background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+        background.fill((255, 255, 255, 160))
+        screen.blit(background, (0, 0))
+        text_surf, text_rect = text_objects('Game Over', LARGE_TEXT)
+        text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
+        screen.blit(text_surf, text_rect)
+        text_surf, text_rect = text_objects(f'You scored {score}', MEDIUM_TEXT)
+        text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT * 8 / 21))
+        screen.blit(text_surf, text_rect)
+        surface_copy = pygame.display.get_surface().copy()
+    pygame.display.update()
+    return surface_copy
 
 
 def end_game(score):
@@ -243,6 +243,9 @@ def end_game(score):
     end_screen_copy = end_game_setup(score)
     button_width, button_height = SCREEN_WIDTH * 0.21, SCREEN_HEIGHT * 0.062
     if save_score(score): pass  # Show "You got a high score!"
+    button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 6 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 7 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 8 / 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
     while True:
         click, pressed_keys = False, pygame.key.get_pressed()
         for event in pygame.event.get():
@@ -253,19 +256,16 @@ def end_game(score):
             elif event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_r): return 'Restart'
             elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
             elif event.type == MOUSEBUTTONDOWN: click = True
-        if button('R E S T A R T', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 6 / 13,
-                  button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+        if button('R E S T A R T', *button_rects[0], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             return 'Restart'
-        elif button('M A I N  M E N U', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 7 / 13,
-                    button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+        elif button('M A I N  M E N U', *button_rects[1], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             main_menu()
             return 'Main Menu'
-        elif button('V I E W  H I G H S C O R E S', (SCREEN_WIDTH - button_width) / 2, SCREEN_HEIGHT * 8 / 13,
-                    button_width, button_height, BLUE, LIGHT_BLUE, click, text_colour=WHITE) or view_hs:
+        elif button('V I E W  H I G H S C O R E S', *button_rects[2], BLUE, LIGHT_BLUE, click, text_colour=WHITE) or view_hs:
             view_high_scores()
             view_hs = False
             end_game_setup(score, end_screen_copy)
-        pygame.display.update()
+        pygame.display.update(button_rects)
         clock.tick(60)
 
 
@@ -368,6 +368,8 @@ if __name__ == '__main__':
         SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * SCREEN_WIDTH), int(0.75 * SCREEN_HEIGHT)
         screen = pygame.display.set_mode(SIZE)
 
+    BUTTON_WIDTH = SCREEN_WIDTH * 0.625 / 3
+    BUTTON_HEIGHT = SCREEN_HEIGHT * 5 / 81    
     window_icon = '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'
     window_icon = pygame.image.load(io.BytesIO(base64.b64decode(window_icon)))
     pygame.display.set_icon(window_icon)
