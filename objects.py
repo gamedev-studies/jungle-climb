@@ -39,11 +39,11 @@ class Player(pygame.sprite.Sprite):
     speed = [0, 0]
 
     animation_frame = 'idle'
-    idle_sprite_path = 'Assets/sprites/idle.png'
-    jump_sprite_path = 'Assets/sprites/jump.png'
-    landing_sprite_path = 'Assets/sprites/landing.png'
-    mid_air_sprite_path = 'Assets/sprites/mid air.png'
-    run_sprite_path = 'Assets/sprites/run.png'
+    idle_path = 'Assets/sprites/idle.png'
+    jump_path = 'Assets/sprites/jump.png'
+    landing_path = 'Assets/sprites/landing.png'
+    mid_air_path = 'Assets/sprites/mid air.png'
+    run_path = 'Assets/sprites/run.png'
 
     RUNNING_SPEED = round(current_w / 200)
     JUMP_SPEED = round(current_h / -40.5)
@@ -53,33 +53,32 @@ class Player(pygame.sprite.Sprite):
     idle_images_right = []
     idle_images_left = []
     idle_images = [idle_images_right, idle_images_left]
-    for image in extract_images(idle_sprite_path, 19):  # 21 with outline, 19 without
+    for image in extract_images(idle_path, 19):  # 21 with outline, 19 without
         # image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
         image = scale_image(image, scale_factor)
         idle_images_right.append(image)
         idle_images_left.append(pygame.transform.flip(image, True, False))
 
-    jump_image = pygame.image.load(jump_sprite_path).convert_alpha()
+    jump_image = pygame.image.load(jump_path).convert_alpha()
     jump_image = scale_image(jump_image, scale_factor)
     jump_images = [jump_image, pygame.transform.flip(jump_image, True, False)]
 
-    landing_image = pygame.image.load(landing_sprite_path).convert_alpha()
+    landing_image = pygame.image.load(landing_path).convert_alpha()
     landing_image = scale_image(landing_image, scale_factor)
     landing_images = [landing_image, pygame.transform.flip(landing_image, True, False)]
 
     mid_air_images_right = []
     mid_air_images_left = []
     mid_air_images = [mid_air_images_right, mid_air_images_left]
-    for image in extract_images(mid_air_sprite_path, 20):  # 22 with outline , 20 without
+    for image in extract_images(mid_air_path, 20):  # 22 with outline , 20 without
         # image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
         image = scale_image(image, scale_factor)
         mid_air_images_right.append(image)
         mid_air_images_left.append(pygame.transform.flip(image, True, False))
 
-    run_images_right = []
-    run_images_left = []
+    run_images_right, run_images_left = [], []
     run_images = [run_images_right, run_images_left]
-    for image in extract_images(run_sprite_path, 21):  # 23 with outline, 21 without
+    for image in extract_images(run_path, 21):  # 23 with outline, 21 without
         # image = pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
         image = scale_image(image, scale_factor)
         run_images_right.append(image)
@@ -187,9 +186,16 @@ class Player(pygame.sprite.Sprite):
         if self.speed == [0, 0]:  # if standing still
             self.update_idle()
             self.animation_frame = 'idle'
+            # if self.animation_frame != 'idle':
+            #     self.animation_frame = 'idle'
+            #     self.update_rect()
         elif self.speed[0] != 0 and self.on_ground:  # animate only if running on the ground
             self.update_running()
             self.animation_frame = 'running'
+            # if self.animation_frame != 'running':
+            #     self.animation_frame = 'running'
+            #     self.update_rect()
+        return self.rect
 
     def stop(self, pressed_keys):
 
@@ -227,6 +233,16 @@ class Player(pygame.sprite.Sprite):
             self.speed[1] = self.JUMP_SPEED
             self.on_ground = False
             self.animation_frame = 'jump'
+
+    def update_rect(self):
+        pos = self.rect.bottomleft
+        self.rect: pygame.Rect = self.image.get_rect()
+        collide_width = self.rect.width - 8 * self.scale_factor
+        self.collide_rect: pygame.Rect = pygame.rect.Rect((0, 0), (collide_width, self.rect.height))
+        # if pos is None:
+        #     pos = (0.05 * current_w, 0.92098765432098766 * current_h + self.GROUND_ADJUSTMENT)
+        self.rect.bottomleft = pos
+        self.collide_rect.midbottom = self.rect.midbottom
             
 
 class Platform(pygame.sprite.Sprite):
