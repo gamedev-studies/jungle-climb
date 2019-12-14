@@ -173,6 +173,10 @@ def main_menu():
         clock.tick(60)
 
 
+def settings_menu():
+    pass
+
+
 def pause_menu(player):
     paused = True
     facing_left = player.facing_left  # store the pre-pause value in case player doesn't hold a right/left key down
