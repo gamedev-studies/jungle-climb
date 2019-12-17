@@ -300,7 +300,7 @@ def game():
             if pause_menu(player) == 'Main Menu': return 'Main Menu'
             # pygame.mixer_music.Channel(0).resume()
             # music_playing = True
-        # player_old_rect = player.rect.copy()
+        player_old_rect = player.rect.copy()
         dirty_rects = []
         for event in pygame.event.get():
             pressed_keys = pygame.key.get_pressed()
@@ -354,7 +354,7 @@ def game():
         score_bg.fill((50, 50, 50, 160))
         score_bg.blit(text_surf, (score_bg_w // 15, 0))
         SCREEN.fill(BACKGROUND)
-        # player_union_rect = player_new_rect.union(player_old_rect)
+        player_union_rect = player_new_rect.union(player_old_rect)
         # pygame.draw.rect(SCREEN, BACKGROUND, player_old_rect)
         dirty_rects.append(player_union_rect)
         player_sprite_group.draw(SCREEN)
