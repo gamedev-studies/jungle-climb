@@ -301,7 +301,7 @@ def game():
             # pygame.mixer_music.Channel(0).resume()
             # music_playing = True
         # player_old_rect = player.rect.copy()
-        # dirty_rects = []
+        dirty_rects = []
         for event in pygame.event.get():
             pressed_keys = pygame.key.get_pressed()
             alt_f4 = (event.type == KEYDOWN and event.key == K_F4
