@@ -31,7 +31,9 @@ OutputBaseFilename=Jungle Climb Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+MinVersion=0,6.0.6001
 SetupIconFile="Resources\Jungle Climb Icon.ico"
+UninstallDisplayName=Jungle Climb
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
