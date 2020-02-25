@@ -34,7 +34,7 @@ OutputDir={#SourcePath}\dist
 OutputBaseFilename=Jungle Climb Setup
 UninstallDisplayName=Jungle Climb
 UninstallDisplayIcon={app}\{#MyAppExeName}
-SetupIconFile="Resources\Jungle Climb Icon.ico"
+SetupIconFile="resources\Jungle Climb Icon.ico"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

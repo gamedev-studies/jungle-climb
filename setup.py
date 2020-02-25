@@ -14,13 +14,13 @@ for pkg in PACKAGES:
     EXCLUDES.remove(pkg)
 
 
-executables = [Executable('main.py', base='Win32GUI', icon='Resources/Jungle Climb Icon.ico', targetName=NAME)]
+executables = [Executable('main.py', base='Win32GUI', icon='resources/Jungle Climb Icon.ico', targetName=NAME)]
 setup(
     name=NAME,
     version=VERSION,
     description=f'{NAME} Copyright 2019 Elijah Lopez',
     options={'build_exe': {'packages': PACKAGES,
-                           'include_files': ['Assets'],
+                           'include_files': ['assets'],
                            'excludes': EXCLUDES,
                            'optimize': 2}},
     executables=executables)

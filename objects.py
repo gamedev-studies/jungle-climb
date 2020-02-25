@@ -6,7 +6,7 @@ from extracter import extract_images, extract_platforms
 
 
 current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().current_h
-JUMP_SOUND = pygame.mixer.Sound('Assets/Audio/jump.ogg')
+JUMP_SOUND = pygame.mixer.Sound('assets/audio/jump.ogg')
 JUMP_SOUND.set_volume(0.3)
 
 
@@ -39,11 +39,11 @@ class Player(pygame.sprite.Sprite):
     speed = [0, 0]
 
     animation_frame = 'idle'
-    idle_path = 'Assets/sprites/idle.png'
-    jump_path = 'Assets/sprites/jump.png'
-    landing_path = 'Assets/sprites/landing.png'
-    mid_air_path = 'Assets/sprites/mid air.png'
-    run_path = 'Assets/sprites/run.png'
+    idle_path = 'assets/sprites/idle.png'
+    jump_path = 'assets/sprites/jump.png'
+    landing_path = 'assets/sprites/landing.png'
+    mid_air_path = 'assets/sprites/mid air.png'
+    run_path = 'assets/sprites/run.png'
 
     RUNNING_SPEED = round(current_w / 200)
     JUMP_SPEED = round(current_h / -40.5)

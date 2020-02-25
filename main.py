@@ -31,8 +31,8 @@ LIGHT_BLUE = 0, 191, 255
 BLUE = 33, 150, 243
 BACKGROUND = 174, 222, 203
 WORLD_SHIFT_SPEED_PERCENT = 0.00135
-game_folder = os.path.expanduser(r'~\Documents\Jungle Climb')
-VERDANA = 'Assets/Fonts/Verdana.ttf'
+game_folder = os.path.expanduser(r'~/Documents/Jungle Climb')
+VERDANA = 'assets/fonts/verdana.ttf'
 
 
 def text_objects(text, font, colour=BLACK):
@@ -40,7 +40,7 @@ def text_objects(text, font, colour=BLACK):
     return text_surface, text_surface.get_rect()
 
 
-def save_score(user_score: int, path: str = game_folder + '/High Scores.txt') -> bool:
+def save_score(user_score: int, path: str = game_folder + '/high Scores.txt') -> bool:
     """
     Takes a score and saves to file if it is a top 10 score else it returns False
     :param user_score: the score of the user
@@ -402,7 +402,7 @@ if __name__ == '__main__':
     pygame.display.set_icon(window_icon)
     LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font(VERDANA, int(110 / 1080 * SCREEN_HEIGHT)), pygame.font.Font(VERDANA, int(40 / 1080 * SCREEN_HEIGHT))
     SMALL_TEXT, SCORE_TEXT = pygame.font.Font(VERDANA, int(25 / 1440 * SCREEN_HEIGHT)), pygame.font.Font(VERDANA, int(40 / 1440 * SCREEN_HEIGHT))    
-    MUSIC_SOUND = pygame.mixer.Sound('Assets/Audio/background_music.ogg')
+    MUSIC_SOUND = pygame.mixer.Sound('assets/audio/background_music.ogg')
     pygame.display.set_caption('Jungle Climb')
     music_playing = False
     clock = pygame.time.Clock()
