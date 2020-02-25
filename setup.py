@@ -18,7 +18,7 @@ executables = [Executable('main.py', base='Win32GUI', icon='resources/Jungle Cli
 setup(
     name=NAME,
     version=VERSION,
-    description=f'{NAME} Copyright 2019 Elijah Lopez',
+    description=f'{NAME} Copyright 2019 - 2020 Elijah Lopez',
     options={'build_exe': {'packages': PACKAGES,
                            'include_files': ['assets'],
                            'excludes': EXCLUDES,
