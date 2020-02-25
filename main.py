@@ -1,5 +1,4 @@
 import base64
-from environs import Env
 import io
 import os
 import pathlib
@@ -15,9 +14,14 @@ import pygame
 
 
 VERSION = '1.7'
-Env().read_env()
+if os.path.exists('.env'):
+    with open('.env') as f:
+        for line in f.read().splitlines():
+            key, value = line.split('=')
+            os.environ[key] = value
+
 # CONSTANTS
-DEBUG = os.environ.get('DEBUG', False)
+DEBUG = os.getenv('DEBUG', False)
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
 # GREEN = 50, 205, 50
