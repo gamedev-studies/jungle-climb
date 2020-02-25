@@ -21,6 +21,10 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
+Compression=lzma
+SolidCompression=yes
+WizardStyle=modern
+MinVersion=0,6.0.6001
 ; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check.
 UsedUserAreasWarning=no
 ; Remove the following line to run in administrative install mode (install for all users.)
@@ -28,13 +32,9 @@ PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
 OutputDir={#SourcePath}\dist
 OutputBaseFilename=Jungle Climb Setup
-Compression=lzma
-SolidCompression=yes
-WizardStyle=modern
-MinVersion=0,6.0.6001
-SetupIconFile="Resources\Jungle Climb Icon.ico"
 UninstallDisplayName=Jungle Climb
 UninstallDisplayIcon={app}\{#MyAppExeName}
+SetupIconFile="Resources\Jungle Climb Icon.ico"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
