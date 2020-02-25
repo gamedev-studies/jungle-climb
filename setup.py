@@ -5,7 +5,7 @@ from main import VERSION
 
 
 NAME = 'Jungle Climb'
-PACKAGES = ['pygame', 'environs']
+PACKAGES = ['pygame', 'environs', 'marshmallow']
 installed_packages = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze']).decode('utf-8')
 installed_packages = installed_packages.split('\r\n')
 EXCLUDES = {pkg.split('==')[0] for pkg in installed_packages if pkg != ''}
