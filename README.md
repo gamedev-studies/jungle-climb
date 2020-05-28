@@ -10,9 +10,8 @@ A platformer I made with pygame as an experiment.
     <img src="https://raw.githubusercontent.com/elibroftw/jungle-climb/master/Resources/jungle_climb_sc2.png" alt="Jungle Climb Screenshot 2" height="500px"/> 
 </p>
 
-
-## Demo, Developer Advice, and Personal Stories
-(video coming soon)
+## Demo and Development Story
+[![Watch the demo](https://img.youtube.com/vi/b1assb_T3N4/maxresdefault.jpg)](https://youtu.be/b1assb_T3N4)
 
 ## Python Instructions
 1. Clone this repository
