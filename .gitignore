@@ -6,3 +6,4 @@ dist/
 setups/
 test.py
 .env
+high_scores.txt

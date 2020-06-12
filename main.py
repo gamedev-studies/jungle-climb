@@ -13,7 +13,7 @@ from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_
 import pygame
 
 
-VERSION = '1.7'
+VERSION = '1.8'
 if os.path.exists('.env'):
     with open('.env') as f:
         for line in f.read().splitlines():
@@ -31,7 +31,6 @@ LIGHT_BLUE = 0, 191, 255
 BLUE = 33, 150, 243
 BACKGROUND = 174, 222, 203
 WORLD_SHIFT_SPEED_PERCENT = 0.00135
-game_folder = os.path.expanduser(r'~/Documents/Jungle Climb')
 VERDANA = 'assets/fonts/verdana.ttf'
 
 
@@ -40,7 +39,7 @@ def text_objects(text, font, colour=BLACK):
     return text_surface, text_surface.get_rect()
 
 
-def save_score(user_score: int, path: str = game_folder + '/high Scores.txt') -> bool:
+def save_score(user_score: int, path='high_scores.txt') -> bool:
     """
     Takes a score and saves to file if it is a top 10 score else it returns False
     :param user_score: the score of the user
@@ -64,13 +63,12 @@ def save_score(user_score: int, path: str = game_folder + '/high Scores.txt') ->
         return False
 
     except FileNotFoundError:
-        pathlib.Path(game_folder).mkdir(parents=True, exist_ok=True)
         with open(path, 'w') as f:
             f.writelines([str(user_score) + '\n'] + ['0\n'] * 8)
         return True
 
 
-def get_scores(path: str = game_folder + r'\High Scores.txt') -> list:
+def get_scores(path='high_scores.txt') -> list:
     """
     Gets the list of top 10 scores
     :param path: path to the scores
@@ -82,7 +80,6 @@ def get_scores(path: str = game_folder + r'\High Scores.txt') -> list:
             return f.read().splitlines()
     except FileNotFoundError:
         temp_scores = ['0' for _ in range(9)]
-        pathlib.Path(game_folder).mkdir(parents=True, exist_ok=True)
         with open(path, 'w') as f:
             f.writelines(map(lambda x: x + '\n', temp_scores))
         return temp_scores
@@ -164,7 +161,7 @@ def main_menu():
             elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
             elif event.type == MOUSEBUTTONDOWN: click = True
 
-        if button('S T A R T  G A M E', *button_rects[0], BLUE, LIGHT_BLUE, click, text_colour=WHITE): start_game = True            
+        if button('S T A R T  G A M E', *button_rects[0], BLUE, LIGHT_BLUE, click, text_colour=WHITE): start_game = True
         elif button('V I E W  H I G H S C O R E S', *button_rects[1], BLUE, LIGHT_BLUE, click, text_colour=WHITE) or view_hs:
             view_high_scores()
             view_hs = False
@@ -332,7 +329,7 @@ def game():
             if event.type == KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
                     player.stop(pressed_keys)
-        
+
         player_new_rect = player.update()
 
         if start_shifting:
@@ -394,14 +391,14 @@ if __name__ == '__main__':
         SCREEN = pygame.display.set_mode(SIZE)
 
     BUTTON_WIDTH = SCREEN_WIDTH * 0.625 / 3
-    BUTTON_HEIGHT = SCREEN_HEIGHT * 5 / 81 
+    BUTTON_HEIGHT = SCREEN_HEIGHT * 5 / 81
     SCORE_ANCHOR = round(0.997 * SCREEN_WIDTH), 0
 
     window_icon = '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'
     window_icon = pygame.image.load(io.BytesIO(base64.b64decode(window_icon)))
     pygame.display.set_icon(window_icon)
     LARGE_TEXT, MEDIUM_TEXT = pygame.font.Font(VERDANA, int(110 / 1080 * SCREEN_HEIGHT)), pygame.font.Font(VERDANA, int(40 / 1080 * SCREEN_HEIGHT))
-    SMALL_TEXT, SCORE_TEXT = pygame.font.Font(VERDANA, int(25 / 1440 * SCREEN_HEIGHT)), pygame.font.Font(VERDANA, int(40 / 1440 * SCREEN_HEIGHT))    
+    SMALL_TEXT, SCORE_TEXT = pygame.font.Font(VERDANA, int(25 / 1440 * SCREEN_HEIGHT)), pygame.font.Font(VERDANA, int(40 / 1440 * SCREEN_HEIGHT))
     MUSIC_SOUND = pygame.mixer.Sound('assets/audio/background_music.ogg')
     pygame.display.set_caption('Jungle Climb')
     music_playing = False
