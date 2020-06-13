@@ -4,7 +4,7 @@
 #define MyAppName "Jungle Climb"
 #define MyAppVersion "1.9"
 #define MyAppPublisher "Elijah Lopez"
-#define MyAppURL "https://elijahlopez.herokuapp.com/"
+#define MyAppURL "https://elijahlopez.herokuapp.com/software#jungle-climb"
 #define MyAppExeName "Jungle Climb.exe"
 ; #define MyAppNewName "Jungle Climb.exe"
 
