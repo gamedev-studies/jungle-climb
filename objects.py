@@ -9,7 +9,6 @@ current_w, current_h = pygame.display.Info().current_w, pygame.display.Info().cu
 JUMP_SOUND = pygame.mixer.Sound('assets/audio/jump.ogg')
 JUMP_SOUND.set_volume(0.3)
 
-
 # def load_image(image):
 #     return pygame.image.fromstring(image.tobytes(), image.size, image.mode).convert_alpha()
 
@@ -162,7 +161,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.speed[1]
 
         platform_hit_list = pygame.sprite.spritecollide(self, self.world.platform_list, False)  # detect collisions
-        
+
         for platform in platform_hit_list:
             if self.speed[1] > 0 and self.rect.bottom > platform.rect.top + self.GROUND_ADJUSTMENT:  # going down
                 self.rect.bottom = platform.rect.top + self.GROUND_ADJUSTMENT
@@ -223,11 +222,11 @@ class Player(pygame.sprite.Sprite):
         if self.speed[0] < self.RUNNING_SPEED: self.speed[0] += self.RUNNING_SPEED
         self.facing_left = False
 
-    def jump(self):
+    def jump(self, play_jump_sound:bool):
         """ Called when user hits 'jump' button. """
         #  player can jump to a height of two platforms
         if self.on_ground:
-            # pygame.mixer.Channel(1).play(JUMP_SOUND)
+            if play_jump_sound: pygame.mixer.Channel(1).play(JUMP_SOUND)
             self.image = self.get_image(self.jump_images)
             # self.image = pygame.transform.flip(self.jump_frame, self.FACING_LEFT, False)
             self.speed[1] = self.JUMP_SPEED
@@ -243,7 +242,7 @@ class Player(pygame.sprite.Sprite):
         #     pos = (0.05 * current_w, 0.92098765432098766 * current_h + self.GROUND_ADJUSTMENT)
         self.rect.bottomleft = pos
         self.collide_rect.midbottom = self.rect.midbottom
-            
+
 
 class Platform(pygame.sprite.Sprite):
     PERCENT_OF_SCREEN_HEIGHT = 0.07901234567901234
@@ -259,7 +258,7 @@ class Platform(pygame.sprite.Sprite):
     images = [image_0, image_1, image_2]
     # images = [scale_image(image, side_length, side_length) for image in images]
     images = {'left': images[0], 'centre': images[1], 'right': images[2]}
-    
+
     # [platform_left, platform_centre, platform_right]
 
     def __init__(self, x, y, platform_type='centre'):
@@ -348,4 +347,3 @@ class World(object):
 
     def update(self):
         self.platform_list.update()
-

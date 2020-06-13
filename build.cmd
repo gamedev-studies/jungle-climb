@@ -1,2 +1,2 @@
 pip install --upgrade -r requirements.txt
-python setup.py build && iscc "Installer Script.iss"
+python setup.py build && iscc setup_script.iss
