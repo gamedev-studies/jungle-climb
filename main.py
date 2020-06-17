@@ -15,7 +15,7 @@ from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_
 import pygame
 
 
-VERSION = '1.9'
+VERSION = '1.10'
 if os.path.exists('.env'):
     with open('.env') as f:
         for line in f.read().splitlines():
