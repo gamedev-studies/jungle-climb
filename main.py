@@ -96,7 +96,7 @@ def button(text, x, y, w, h, inactive_colour, active_colour, click, text_colour=
     return return_value
 
 
-def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True):
+def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True, blit_text=True):
     mouse = pygame.mouse.get_pos()
     # focus = pygame.mouse.get_focused()
     if enabled:
@@ -113,7 +113,7 @@ def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True):
         pygame.draw.circle(SCREEN, WHITE, (int(x + 350), y + h // 4), h // 5)
     text_surf, text_rect = text_objects(text, MEDIUM_TEXT, colour=text_colour)
     text_rect.topleft = (x, y)
-    SCREEN.blit(text_surf, text_rect)
+    if blit_text: SCREEN.blit(text_surf, text_rect)
     return x < mouse[0] < x + w and y < mouse[1] < y + h and click and pygame.time.get_ticks() > 100
 
 
@@ -204,6 +204,7 @@ def settings_menu():
     button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                     ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 6 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                     ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
+    first_run = True
     while True:
         click = False
         pressed_keys = pygame.key.get_pressed()
@@ -216,15 +217,16 @@ def settings_menu():
             elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
             elif event.type == MOUSEBUTTONDOWN: click = True
         # if toggle_btn('Jump Sound', *button_rects[0], BLUE, LIGHT_BLUE, click, enabled=config['background_music']):
-        if toggle_btn('Background Music', *button_rects[0], click, enabled=config['background_music']):
+        if toggle_btn('Background Music', *button_rects[0], click, enabled=config['background_music'], blit_text=first_run):
             config['background_music'] = not config['background_music']
             save_config()
-        elif toggle_btn('Jump Sound', *button_rects[1], click, enabled=config['jump_sound']):
+        elif toggle_btn('Jump Sound', *button_rects[1], click, enabled=config['jump_sound'], blit_text=first_run):
             config['jump_sound'] = not config['jump_sound'];
             save_config()
         elif button('B A C K', *button_rects[2], BLUE, LIGHT_BLUE, click, text_colour=WHITE): return
         pygame.display.update(button_rects)
         clock.tick(60)
+        first_run = False
 
 
 def pause_menu_setup(background):
