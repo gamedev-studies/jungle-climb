@@ -10,7 +10,7 @@ import json
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'True'
 
-from pygame import K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, \
+from pygame import gfxdraw, K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4, K_p, K_RALT, K_LALT, K_SPACE, \
     MOUSEBUTTONDOWN, QUIT, KEYUP, KEYDOWN, K_TAB, K_v, K_h, K_BACKSPACE, K_q, K_m, K_r
 import pygame
 
@@ -96,24 +96,31 @@ def button(text, x, y, w, h, inactive_colour, active_colour, click, text_colour=
     return return_value
 
 
-def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True, blit_text=True):
+def draw_circle(surface, x, y, radius, color):
+    gfxdraw.aacircle(surface, x, y, radius, color)
+    gfxdraw.filled_circle(surface, x, y, radius, color)
+
+
+def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True, draw_toggle=True, blit_text=True, enabled_color=LIGHT_BLUE, disabled_color=GREY):
     mouse = pygame.mouse.get_pos()
-    # focus = pygame.mouse.get_focused()
-    if enabled:
-        # pygame.draw.rect(SCREEN, on_colour, (x, y, w, h))
-        pygame.draw.rect(SCREEN, LIGHT_BLUE, (x + 350, y, 30, h // 2 - 1))
-        pygame.draw.circle(SCREEN, LIGHT_BLUE, (int(x + 350), y + h // 4), h // 4)
-        pygame.draw.circle(SCREEN, LIGHT_BLUE, (int(x + 380), y + h // 4), h // 4)
-        pygame.draw.circle(SCREEN, WHITE, (int(x + 380), y + h // 4), h // 5)
+    # draw_toggle and blit_text are used to reduce redundant drawing and blitting (improves quality)
+    if enabled and draw_toggle:
+        pygame.draw.rect(SCREEN, WHITE, (x + 350 - h // 4, y, 30 + h, h // 2))
+        pygame.draw.rect(SCREEN, enabled_color, (x + 350, y, 30, h // 2))
+        draw_circle(SCREEN, int(x + 350), y + h // 4, h // 4, enabled_color)
+        draw_circle(SCREEN, int(x + 380), y + h // 4, h // 4, enabled_color)
+        draw_circle(SCREEN, int(x + 380), y + h // 4, h // 5, WHITE)  # small inner circle
         # if click and action is not None and pygame.time.get_ticks() - ticks > 100: action()
-    else:
-        pygame.draw.rect(SCREEN, GREY, (x + 350, y, 30, h // 2 - 1))
-        pygame.draw.circle(SCREEN, GREY, (int(x + 350), y + h // 4), h // 4)
-        pygame.draw.circle(SCREEN, GREY, (int(x + 380), y + h // 4), h // 4)
-        pygame.draw.circle(SCREEN, WHITE, (int(x + 350), y + h // 4), h // 5)
-    text_surf, text_rect = text_objects(text, MEDIUM_TEXT, colour=text_colour)
-    text_rect.topleft = (x, y)
-    if blit_text: SCREEN.blit(text_surf, text_rect)
+    elif draw_toggle:
+        pygame.draw.rect(SCREEN, WHITE, (x + 350 - h // 4, y, 30 + h, h // 2))
+        pygame.draw.rect(SCREEN, disabled_color, (x + 350, y, 30, h // 2))
+        draw_circle(SCREEN, int(x + 350), y + h // 4, h // 4, disabled_color)
+        draw_circle(SCREEN, int(x + 380), y + h // 4, h // 4, disabled_color)
+        draw_circle(SCREEN, int(x + 350), y + h // 4, h // 5, WHITE)  # small inner circle
+    if blit_text:
+        text_surf, text_rect = text_objects(text, MEDIUM_TEXT, colour=text_colour)
+        text_rect.topleft = (x, y)
+        SCREEN.blit(text_surf, text_rect)
     return x < mouse[0] < x + w and y < mouse[1] < y + h and click and pygame.time.get_ticks() > 100
 
 
@@ -204,7 +211,7 @@ def settings_menu():
     button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                     ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 6 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                     ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
-    first_run = True
+    first_run = draw_toggles = True
     while True:
         click = False
         pressed_keys = pygame.key.get_pressed()
@@ -216,17 +223,21 @@ def settings_menu():
             elif event.type == KEYDOWN and event.key == K_SPACE: start_game = True
             elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
             elif event.type == MOUSEBUTTONDOWN: click = True
-        # if toggle_btn('Jump Sound', *button_rects[0], BLUE, LIGHT_BLUE, click, enabled=config['background_music']):
-        if toggle_btn('Background Music', *button_rects[0], click, enabled=config['background_music'], blit_text=first_run):
+        if toggle_btn('Background Music', *button_rects[0], click, enabled=config['background_music'], draw_toggle=draw_toggles, blit_text=first_run):
             config['background_music'] = not config['background_music']
             save_config()
-        elif toggle_btn('Jump Sound', *button_rects[1], click, enabled=config['jump_sound'], blit_text=first_run):
+            draw_toggles = True
+        elif toggle_btn('Jump Sound', *button_rects[1], click, enabled=config['jump_sound'], draw_toggle=draw_toggles, blit_text=first_run):
             config['jump_sound'] = not config['jump_sound'];
             save_config()
+            draw_toggles = True
         elif button('B A C K', *button_rects[2], BLUE, LIGHT_BLUE, click, text_colour=WHITE): return
+        else: draw_toggles = False
+        first_run = False
         pygame.display.update(button_rects)
         clock.tick(60)
-        first_run = False
+
+
 
 
 def pause_menu_setup(background):
