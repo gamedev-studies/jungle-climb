@@ -2,7 +2,7 @@
 import pygame as pg
 
 
-def extract_platforms(source_path='Assets/jungle tileset.png') -> list:  # each tile is 16x16
+def extract_platforms(source_path='assets/images/jungle tileset.png') -> list:  # each tile is 16x16
     """
     Extracts platform tiles from the tilesheet and returns them as a list
 
