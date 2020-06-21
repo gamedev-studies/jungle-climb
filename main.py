@@ -20,11 +20,6 @@ if os.path.exists('.env'):
             os.environ[key] = value
 
 
-def save_config():
-    with open(CONFIG_FILE, 'w') as fp:
-        json.dump(config, fp)
-
-
 # CONSTANTS
 DEBUG = os.getenv('DEBUG', False)
 WHITE = 255, 255, 255
@@ -41,12 +36,18 @@ FONT_BOLD ='assets/fonts/OpenSans-SemiBold.ttf'
 FONT_REG = 'assets/fonts/OpenSans-Regular.ttf'
 FONT_LIGHT ='assets/fonts/OpenSans-Light.ttf'
 CONFIG_FILE = 'config.json'
-config = { 'jump_sound': True, 'background_music': True, 'high_scores': [0, 0, 0, 0, 0, 0, 0, 0, 0,] }
+config = {'jump_sound': True, 'background_music': True, 'high_scores': [0, 0, 0, 0, 0, 0, 0, 0, 0]}
 music_playing = False
 
+
+def save_config():
+    with open(CONFIG_FILE, 'w') as fp:
+        json.dump(config, fp)
+
+
 try:
-    with open(CONFIG_FILE) as fp:
-        config = json.load(fp)
+    with open(CONFIG_FILE) as f:
+        config = json.load(f)
 except FileNotFoundError:
     save_config()
 
@@ -84,7 +85,6 @@ def button(text, x, y, w, h, inactive_colour, active_colour, click, text_colour=
     if x < mouse[0] < x + w and y < mouse[1] < y + h:  # if mouse is hovering the button
         pygame.draw.rect(SCREEN, active_colour, (x, y, w, h))
         if click and pygame.time.get_ticks() > 100: return_value = True
-        # if click and action is not None and pygame.time.get_ticks() - ticks > 100: action()
     else: pygame.draw.rect(SCREEN, inactive_colour, (x, y, w, h))
 
     text_surf, text_rect = text_objects(text, SMALL_TEXT, colour=text_colour)
@@ -107,7 +107,6 @@ def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True, draw_to
         draw_circle(SCREEN, int(x + TOGGLE_WIDTH), y + h // 4, h // 4, enabled_color)
         draw_circle(SCREEN, int(x + TOGGLE_WIDTH + TOGGLE_ADJ), y + h // 4, h // 4, enabled_color)
         draw_circle(SCREEN, int(x + TOGGLE_WIDTH + TOGGLE_ADJ), y + h // 4, h // 5, WHITE)  # small inner circle
-        # if click and action is not None and pygame.time.get_ticks() - ticks > 100: action()
     elif draw_toggle:
         pygame.draw.rect(SCREEN, WHITE, (x + TOGGLE_WIDTH - h // 4, y, TOGGLE_ADJ + h, h // 2))
         pygame.draw.rect(SCREEN, disabled_color, (x + TOGGLE_WIDTH, y, TOGGLE_ADJ, h // 2))
@@ -119,7 +118,6 @@ def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True, draw_to
         text_rect.topleft = (x, y)
         SCREEN.blit(text_surf, text_rect)
     return x < mouse[0] < x + w and y < mouse[1] < y + h and click and pygame.time.get_ticks() > 100
-
 
 
 def view_high_scores():
@@ -208,7 +206,7 @@ def settings_menu():
     button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                     ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 6 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                     ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
-    first_run = draw_toggles = True
+    first_run = draw_bg_toggle = draw_jump_toggle = True
     while True:
         click = False
         pressed_keys = pygame.key.get_pressed()
@@ -217,19 +215,19 @@ def settings_menu():
                       or event.key == K_q))
             if event.type == QUIT or alt_f4: sys.exit()
             elif event.type == KEYDOWN and event.key == K_ESCAPE: return
-            elif event.type == KEYDOWN and event.key == K_SPACE: start_game = True
-            elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
             elif event.type == MOUSEBUTTONDOWN: click = True
-        if toggle_btn('Background Music', *button_rects[0], click, enabled=config['background_music'], draw_toggle=draw_toggles, blit_text=first_run):
+        if toggle_btn('Background Music', *button_rects[0], click, enabled=config['background_music'],
+                      draw_toggle=draw_bg_toggle, blit_text=first_run):
             config['background_music'] = not config['background_music']
             save_config()
-            draw_toggles = True
-        elif toggle_btn('Jump Sound', *button_rects[1], click, enabled=config['jump_sound'], draw_toggle=draw_toggles, blit_text=first_run):
+            draw_bg_toggle = True
+        elif toggle_btn('Jump Sound', *button_rects[1], click, enabled=config['jump_sound'],
+                        draw_toggle=draw_jump_toggle, blit_text=first_run):
             config['jump_sound'] = not config['jump_sound'];
             save_config()
-            draw_toggles = True
+            draw_jump_toggle = True
         elif button('B A C K', *button_rects[2], BLUE, LIGHT_BLUE, click, text_colour=WHITE): return
-        else: draw_toggles = False
+        else: draw_bg_toggle = draw_jump_toggle = False
         first_run = False
         pygame.display.update(button_rects)
         clock.tick(60)
@@ -251,16 +249,10 @@ def pause_menu(player):
     background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32)
     background.fill((255, 255, 255, 160))
     background = pause_menu_setup(background)
-    # SCREEN.blit(background, (0, 0))
-    # text_surf, text_rect = text_objects('Pause Menu', MENU_TEXT)
-    # text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
-    # SCREEN.blit(text_surf, text_rect)
-    # pygame.display.update()
     button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 5 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                     ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 6 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                     ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 7 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                     ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 8 / 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
-    # TODO: stop music
     while paused:
         click = False
         pks = pressed_keys = pygame.key.get_pressed()
