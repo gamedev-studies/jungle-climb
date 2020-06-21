@@ -238,8 +238,6 @@ def settings_menu():
         clock.tick(60)
 
 
-
-
 def pause_menu_setup(background):
     SCREEN.blit(background, (0, 0))
     background = SCREEN.copy()
