@@ -13,19 +13,13 @@ import pygame
 
 
 VERSION = '1.11'
-if os.path.exists('.env'):
-    with open('.env') as f:
-        for line in f.read().splitlines():
-            key, value = line.split('=')
-            os.environ[key] = value
-
-
 # CONSTANTS
-DEBUG = os.getenv('DEBUG', False)
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
 # GREEN = 50, 205, 50
 GREEN = 40, 175, 99
+RED = 255, 0, 0
+YELLOW = 250, 237, 39
 DARK_GREEN = 0, 128, 0
 LIGHT_BLUE = 0, 191, 255
 GREY = 204, 204, 204
@@ -36,25 +30,41 @@ FONT_BOLD ='assets/fonts/OpenSans-SemiBold.ttf'
 FONT_REG = 'assets/fonts/OpenSans-Regular.ttf'
 FONT_LIGHT ='assets/fonts/OpenSans-Light.ttf'
 CONFIG_FILE = 'config.json'
-config = {'jump_sound': True, 'background_music': True, 'high_scores': [0, 0, 0, 0, 0, 0, 0, 0, 0]}
+config = {'DEBUG': False, 'jump_sound': True, 'background_music': True, 'show_fps': False, 'show_score': True,
+          'high_scores': [0, 0, 0, 0, 0, 0, 0, 0, 0]}
 music_playing = False
 
 
 def save_config():
     with open(CONFIG_FILE, 'w') as fp:
-        json.dump(config, fp)
+        json.dump(config, fp, indent=4)
 
 
 try:
     with open(CONFIG_FILE) as f:
-        config = json.load(f)
-except FileNotFoundError:
-    save_config()
-
+        _config = json.load(f)
+except FileNotFoundError: _config = {}
+save_file = False
+for k, v in config.items():
+    try: config[k] = _config[k]
+    except KeyError: save_file = True
+if save_file: save_config()
+DEBUG = config['DEBUG']
 
 def text_objects(text, font, colour=BLACK):
     text_surface = font.render(text, True, colour)
     return text_surface, text_surface.get_rect()
+
+
+def create_hud_text(text, color):
+    text_surf, text_rect = text_objects(text, HUD_TEXT, color)
+    text_rect.topleft = -2, -5
+    bg_w, text_bg_h = text_surf.get_size()
+    bg_w += 10
+    bg = pygame.Surface((bg_w, text_bg_h), pygame.SRCALPHA, 32)
+    bg.fill((50, 50, 50, 160))
+    bg.blit(text_surf, (5, 0))
+    return bg, text_rect
 
 
 def save_score(user_score: int) -> bool:
@@ -205,8 +215,9 @@ def settings_menu():
     pygame.display.update()
     button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                     ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 6 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
-    first_run = draw_bg_toggle = draw_jump_toggle = True
+                    ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                    ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 8 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
+    first_run = draw_bg_toggle = draw_jump_toggle = draw_show_fps = True
     while True:
         click = False
         pressed_keys = pygame.key.get_pressed()
@@ -223,11 +234,16 @@ def settings_menu():
             draw_bg_toggle = True
         elif toggle_btn('Jump Sound', *button_rects[1], click, enabled=config['jump_sound'],
                         draw_toggle=draw_jump_toggle, blit_text=first_run):
-            config['jump_sound'] = not config['jump_sound'];
+            config['jump_sound'] = not config['jump_sound']
             save_config()
             draw_jump_toggle = True
-        elif button('B A C K', *button_rects[2], BLUE, LIGHT_BLUE, click, text_colour=WHITE): return
-        else: draw_bg_toggle = draw_jump_toggle = False
+        elif toggle_btn('Show FPS', *button_rects[2], click, enabled=config['show_fps'],
+                        draw_toggle=draw_show_fps, blit_text=first_run):
+            config['show_fps'] = not config['show_fps']
+            save_config()
+            draw_show_fps = True
+        elif button('B A C K', *button_rects[3], BLUE, LIGHT_BLUE, click, text_colour=WHITE): return
+        else: draw_bg_toggle = draw_jump_toggle = draw_show_fps = False
         first_run = False
         pygame.display.update(button_rects)
         clock.tick(60)
@@ -274,15 +290,14 @@ def pause_menu(player):
                 if event.key in (K_d, K_RIGHT, K_a, K_LEFT):
                     player.stop(pygame.key.get_pressed())
                     player.facing_left = facing_left
-
         if button('R E S U M E', *button_rects[0], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             return 'Resume'
-        if button('M A I N  M E N U', *button_rects[1], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+        elif button('M A I N  M E N U', *button_rects[1], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             return 'Main Menu'
-        if button('S E T T I N G S', *button_rects[2], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+        elif button('S E T T I N G S', *button_rects[2], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             settings_menu()
             pause_menu_setup(background)
-        if button('Q U I T  G A M E', *button_rects[3], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
+        elif button('Q U I T  G A M E', *button_rects[3], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             sys.exit()
         pygame.display.update(button_rects)
         clock.tick(60)
@@ -410,27 +425,25 @@ def game():
                 world_shift_speed = min(world_shift_speed * 2, MAX_SPEED)
         elif player.rect.top < shift_thresh: start_shifting = True
 
-        if DEBUG:
-            custom_text = f'FPS: {round(clock.get_fps())}'
-            # custom_text = f'Platform Sprites: {len(world.platform_list.sprites())}'
-            text_surf, score_rect = text_objects(custom_text, SCORE_TEXT, WHITE)
-        else: text_surf, score_rect = text_objects(str(score), SCORE_TEXT, WHITE)
-        score_rect.topright = SCORE_ANCHOR
-        score_bg_w, text_bg_h = text_surf.get_size()
-        score_bg_w += 15
-        score_bg = pygame.Surface((score_bg_w, text_bg_h), pygame.SRCALPHA, 32)
-        score_bg.fill((50, 50, 50, 160))
-        score_bg.blit(text_surf, (5, 0))
         SCREEN.fill(BACKGROUND)
         player_union_rect = player_new_rect.union(player_old_rect)
         # pygame.draw.rect(SCREEN, BACKGROUND, player_old_rect)
         dirty_rects.append(player_union_rect)
         player_sprite_group.draw(SCREEN)
         world.draw(SCREEN)
-        SCREEN.blit(score_bg, score_rect)
-        # a = [SCORE_ANCHOR[0] - score_bg_w * 0.8, SCORE_ANCHOR[1], score_bg_w, text_bg_h]
-        # dirty_rects.append(a)
-        # pygame.display.update(dirty_rects)
+        if DEBUG:
+            custom_text = f'Platform Sprites: {len(world.platform_list.sprites())}'
+            custom_bg, custom_rect = create_hud_text(custom_text, RED)
+            custom_rect.topleft = 50, -5
+            SCREEN.blit(custom_bg, custom_rect)
+        if config['show_fps']:
+            fps_bg, fps_rect = create_hud_text(str(round(clock.get_fps())), YELLOW)
+            fps_rect.topleft = -2, -5
+            SCREEN.blit(fps_bg, fps_rect)
+        if config['show_score']:
+            score_bg, score_rect = create_hud_text(str(score), WHITE)
+            score_rect.topright = SCORE_ANCHOR
+            SCREEN.blit(score_bg, score_rect)
         pygame.display.update()
         clock.tick(60)
         if player.rect.top > SCREEN_HEIGHT + player.rect.height // 2:
@@ -469,7 +482,7 @@ if __name__ == '__main__':
     pygame.display.set_icon(window_icon)
     MENU_TEXT, LARGE_TEXT = pygame.font.Font(FONT_LIGHT, int(110 / 1080 * SCREEN_HEIGHT)), pygame.font.Font(FONT_REG, int(40 / 1080 * SCREEN_HEIGHT))
     MEDIUM_TEXT = pygame.font.Font(FONT_LIGHT, int(35 / 1440 * SCREEN_HEIGHT))
-    SMALL_TEXT, SCORE_TEXT = pygame.font.Font(FONT_BOLD, int(25 / 1440 * SCREEN_HEIGHT)), pygame.font.Font(FONT_REG, int(40 / 1440 * SCREEN_HEIGHT))
+    SMALL_TEXT, HUD_TEXT = pygame.font.Font(FONT_BOLD, int(25 / 1440 * SCREEN_HEIGHT)), pygame.font.Font(FONT_REG, int(40 / 1440 * SCREEN_HEIGHT))
     MUSIC_SOUND = pygame.mixer.Sound('assets/audio/background_music.ogg')
     pygame.display.set_caption('Jungle Climb')
     music_playing = False
