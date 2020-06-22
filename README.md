@@ -5,9 +5,9 @@ A platformer made with pygame as an experiment.
 
 ## Screenshots
 
-<p align="center">
-    <img src="https://raw.githubusercontent.com/elibroftw/jungle-climb/master/Resources/jungle_climb_sc1.png" alt="Jungle Climb Screenshot 1" height="500px"/>
-    <img src="https://raw.githubusercontent.com/elibroftw/jungle-climb/master/Resources/jungle_climb_sc2.png" alt="Jungle Climb Screenshot 2" height="500px"/>
+<p align="center" style="display: flex;">
+    <img src="https://raw.githubusercontent.com/elibroftw/jungle-climb/master/Resources/jungle_climb_sc1.png" alt="Jungle Climb Screenshot 1" width="50%"/>
+    <img src="https://raw.githubusercontent.com/elibroftw/jungle-climb/master/Resources/jungle_climb_sc2.png" alt="Jungle Climb Screenshot 2" width="50%"/>
 </p>
 
 ## Demo and Development Story
