@@ -13,6 +13,15 @@ A platformer made with pygame as an experiment.
 ## Demo and Development Story
 [![Watch the demo](https://img.youtube.com/vi/b1assb_T3N4/maxresdefault.jpg)](https://youtu.be/b1assb_T3N4)
 
+## Controls
+A / Left Arrow key - Run Left
+
+D / Right Arrow key - Run Right
+
+W / Up Arrow key - Jump
+
+There are also menu key board shortcuts which can be guessed intuitively (Space, Escape, R, M, V, H)
+
 ## Python Instructions
 1. Clone this repository
 2. You will need python 3.6+ with pip
@@ -23,15 +32,6 @@ A platformer made with pygame as an experiment.
 1. Follow the previous procedure
 2. Have Inno Setup installed and on PATH (Windows only)
 3. Run build.cmd or `python setup.py build && iscc "Installer Script.iss"`
-
-## Controls
-A / Left Arrow key - Run Left
-
-D / Right Arrow key - Run Right
-
-W / Up Arrow key - Jump
-
-There are also menu key board shortcuts which can be guessed intuitively (Space, Escape, R, M, V, H)
 
 ## Credits
 - Jesse M for the [jungle pack sprites](https://jesse-m.itch.io/jungle-pack)
