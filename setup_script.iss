@@ -6,7 +6,6 @@
 #define MyAppPublisher "Elijah Lopez"
 #define MyAppURL "https://elijahlopez.herokuapp.com/software#jungle-climb"
 #define MyAppExeName "Jungle Climb.exe"
-; #define MyAppNewName "Jungle Climb.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -29,7 +28,6 @@ MinVersion=0,6.0.6001
 UsedUserAreasWarning=no
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=commandline
 OutputDir={#SourcePath}\dist
 OutputBaseFilename=Jungle Climb Setup
 UninstallDisplayName=Jungle Climb
