@@ -12,7 +12,7 @@ from pygame import gfxdraw, K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4
 import pygame
 
 
-VERSION = '1.11'
+VERSION = '1.12'
 # CONSTANTS
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
@@ -114,8 +114,6 @@ def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True, draw_to
     rect_height = h // 2
     if rect_height % 2 == 0: rect_height += 1
     if enabled and draw_toggle:
-        print(h // 2)
-        print(h // 4)
         pygame.draw.rect(SCREEN, WHITE, (x + TOGGLE_WIDTH - h // 4, y, TOGGLE_ADJ + h, rect_height))
         pygame.draw.rect(SCREEN, enabled_color, (x + TOGGLE_WIDTH, y, TOGGLE_ADJ, rect_height))
         draw_circle(SCREEN, int(x + TOGGLE_WIDTH), y + h // 4, h // 4, enabled_color)
@@ -265,7 +263,7 @@ def pause_menu_setup(background):
 
 def pause_menu(player):
     paused = True
-    facing_left = player.facing_left  # store the pre-pause value in case player doesn't hold a right/left key down
+    facing_left = player.facing_right  # store the pre-pause value in case player doesn't hold a right/left key down
     background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32)
     background.fill((255, 255, 255, 160))
     background = pause_menu_setup(background)
@@ -293,7 +291,7 @@ def pause_menu(player):
             elif event.type == KEYUP:
                 if event.key in (K_d, K_RIGHT, K_a, K_LEFT):
                     player.stop(pygame.key.get_pressed())
-                    player.facing_left = facing_left
+                    player.facing_right = facing_left
         if button('R E S U M E', *button_rects[0], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
             return 'Resume'
         elif button('M A I N  M E N U', *button_rects[1], BLUE, LIGHT_BLUE, click, text_colour=WHITE):
@@ -436,7 +434,7 @@ def game():
         player_sprite_group.draw(SCREEN)
         world.draw(SCREEN)
         if DEBUG:
-            custom_text = f'Platform Sprites: {len(world.platform_list.sprites())}'
+            custom_text = f'Platform Sprites: {len(world.platform_list)}'
             custom_bg, custom_rect = create_hud_text(custom_text, RED)
             custom_rect.topleft = 50, -5
             SCREEN.blit(custom_bg, custom_rect)
