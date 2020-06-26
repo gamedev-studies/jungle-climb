@@ -8,6 +8,8 @@ from datetime import datetime
 NAME = 'Jungle Climb'
 SETUP_OUTPUT_NAME = 'Jungle Climb Setup'
 PACKAGES = ['pygame']
+print('Installing dependencies...')
+subprocess.check_call('pip install --upgrade -r requirements.txt', stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
 installed_packages = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze']).decode('utf-8')
 installed_packages = installed_packages.split('\r\n')
 EXCLUDES = {pkg.split('==')[0] for pkg in installed_packages if pkg != ''}
