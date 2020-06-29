@@ -23,8 +23,14 @@ def extract_platforms(source_path='assets/images/jungle tileset.png', scale_fact
     """
     sheet = pygame.image.load(source_path).convert_alpha()
     platform_coords = [(0, 16, 27, 27), (26, 16, 27, 27), (53, 16, 27, 27)]  # left, centre, right
-    # TODO: crop vines
     return [scale_image(sheet.subsurface(coords), scale_factor) for coords in platform_coords]
+
+
+
+def extract_vines(source_path='assets/images/jungle tileset.png', scale_factor=1):
+    sheet = pygame.image.load(source_path).convert_alpha()
+    vine_coords = [(21*16, 12*16, 24*16, 15 * 16)]  # big vine
+    return [scale_image(sheet.subsurface(coords), scale_factor) for coords in vine_coords]
 
 
 def extract_images(path: str, sprite_width: int, scale_factor=1) -> list:
@@ -43,3 +49,4 @@ def extract_images(path: str, sprite_width: int, scale_factor=1) -> list:
     for x in range(sprites):
         images.append(scale_image(sheet.subsurface(x * sprite_width, 0, sprite_width, h), scale_factor))
     return images
+
