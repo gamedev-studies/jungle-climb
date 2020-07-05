@@ -12,7 +12,7 @@ from pygame import gfxdraw, K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4
 import pygame
 
 
-VERSION = '1.12'
+VERSION = '1.13'
 # CONSTANTS
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
