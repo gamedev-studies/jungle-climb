@@ -3,7 +3,7 @@ import subprocess
 import sys
 from main import VERSION
 from datetime import datetime
-
+from shutil import rmtree
 
 NAME = 'Jungle Climb'
 SETUP_OUTPUT_NAME = 'Jungle Climb Setup'
@@ -29,6 +29,7 @@ with open('setup_script.iss', 'r+') as f:
 
 copyright_text = f'Copyright 2019 - {datetime.now().year} Elijah Lopez'
 executables = [Executable('main.py', base='Win32GUI', icon='resources/Jungle Climb Icon.ico', targetName=NAME)]
+rmtree('build')
 setup(name=NAME, version=VERSION, description=f'{NAME} {copyright_text}',
     options={'build_exe': {'packages': PACKAGES,
                            'include_files': ['assets'],
