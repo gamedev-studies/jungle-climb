@@ -1,4 +1,7 @@
-# Jungle Climb
+<h1 align="left">
+<img width=30px src="https://raw.githubusercontent.com/elibroftw/jungle-climb/master/Resources/Jungle%20Climb%20Icon.png" alt="Logo" style="vertical-align: bottom">
+Jungle Climb</h1>
+
 A platformer made with pygame as an experiment.
 
 ## [Download Page (Windows 64-bit)](https://github.com/elibroftw/jungle-climb/releases)
