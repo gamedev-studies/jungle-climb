@@ -429,7 +429,7 @@ def game():
             world.shift_world(world_shift_speed)
             score += 1
             if score > 1000 * world_shift_speed + (world_shift_speed - 1) * 1000:
-                world_shift_speed = max(world_shift_speed + speed_increment, MAX_SPEED)
+                world_shift_speed = min(world_shift_speed + speed_increment, MAX_SPEED)
         elif player.rect.top < shift_threshold: world_shift_speed = speed_increment
         SCREEN.fill(BACKGROUND)
         player.draw(SCREEN)
