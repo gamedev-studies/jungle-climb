@@ -1,5 +1,6 @@
 import random
 from math import ceil
+import time
 
 import pygame
 from extracter import extract_images, extract_platforms, scale_image
@@ -246,17 +247,16 @@ class World(object):
         self.platform_list = pygame.sprite.Group()
         self.player = None
         self.screen_width, self.screen_height = CURRENT_W, CURRENT_H
+        self.lowest_y = self.screen_height
         self.scale_factor = 0.07901234567901234 * CURRENT_H / TILESET_SIDELENGTH
         self.tileset_new_sidelength = int(TILESET_SIDELENGTH * self.scale_factor)
         self.number_of_spots = self.screen_width // self.tileset_new_sidelength
         pos_y = self.screen_height - self.tileset_new_sidelength
-        for x in range(ceil(self.screen_width / self.tileset_new_sidelength)):
-            pos_x = x * self.tileset_new_sidelength
+        for pos_x in range(0, self.screen_width, self.tileset_new_sidelength):
             platform = Platform(pos_x, pos_y)
             self.platform_list.add(platform)
-        for x in range(1, ceil(self.screen_height / self.tileset_new_sidelength / 3)):
-            # platforms are every 3 "rows"
-            self.create_platforms(self.screen_height - self.tileset_new_sidelength * (1 + 3 * x))
+        for x in range(3, ceil(self.screen_height / self.tileset_new_sidelength), 3):
+            self.create_platforms(self.screen_height - self.tileset_new_sidelength * (x + 1))
 
     def draw(self, screen):
         self.platform_list.draw(screen)
@@ -282,8 +282,9 @@ class World(object):
     def shift_world(self, shift_y=0, shift_x=0):
         """For automated scrolling"""
         platforms_to_remove = []
-        farthest_y = self.screen_height
+        highest_y = self.screen_height
         # Go through all the sprite lists and shift
+        self.lowest_y += shift_y
         self.player.rect.y += shift_y
         self.player.rect.x += shift_x
         self.player.collide_rect.y += shift_y
@@ -293,12 +294,14 @@ class World(object):
             platform.collide_rect.y += shift_y
             platform.rect.x += shift_x
             platform.collide_rect.x += shift_x
-            if platform.rect.y < farthest_y:
-                farthest_y = platform.rect.y
+            if platform.rect.y < highest_y:
+                highest_y = platform.rect.y
+                print(highest_y)
             if platform.rect.top > self.screen_height + self.player.rect.height:
                 platforms_to_remove.append(platform)
-        if farthest_y > 0:
-            self.create_platforms(farthest_y - self.tileset_new_sidelength * 3)
+        if highest_y > 0:
+            print(highest_y)
+            self.create_platforms(highest_y - self.tileset_new_sidelength * 3)
         if platforms_to_remove:
             self.platform_list.remove(platforms_to_remove)
             platforms_to_remove.clear()
