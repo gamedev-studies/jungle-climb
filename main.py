@@ -480,13 +480,13 @@ if __name__ == '__main__':
     MUSIC_SOUND = pygame.mixer.Sound('assets/audio/background_music.ogg')
     music_playing = False
     pygame.init()
-    SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
+    SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
     FULLSCREEN = True
     if FULLSCREEN:
-        SCREEN = pygame.display.set_mode(SIZE, pygame.FULLSCREEN)
+        SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
     else:
-        SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * SCREEN_WIDTH), int(0.75 * SCREEN_HEIGHT)
-        SCREEN = pygame.display.set_mode(SIZE)
+        SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * SCREEN_WIDTH), int(0.75 * SCREEN_HEIGHT)
+        SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     BUTTON_WIDTH = SCREEN_WIDTH * 0.625 // 3
     BUTTON_HEIGHT = SCREEN_HEIGHT * 5 // 81
     TOGGLE_WIDTH = BUTTON_WIDTH * 0.875
