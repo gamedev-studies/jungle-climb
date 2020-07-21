@@ -1,7 +1,5 @@
 import random
 from math import ceil
-import time
-
 import pygame
 from extracter import extract_images, extract_platforms, scale_image
 
@@ -78,6 +76,9 @@ class Player(pygame.sprite.Sprite):
             pos = (0.05 * CURRENT_W, 0.92098765432098766 * CURRENT_H + self.GROUND_ADJUSTMENT)
         self.rect.bottomleft = pos
         self.collide_rect.midbottom = self.rect.midbottom
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
 
     def get_image(self, images: list, index: int = None) -> pygame.image:
         """
@@ -247,7 +248,6 @@ class World(object):
         self.platform_list = pygame.sprite.Group()
         self.player = None
         self.screen_width, self.screen_height = CURRENT_W, CURRENT_H
-        self.lowest_y = self.screen_height
         self.scale_factor = 0.07901234567901234 * CURRENT_H / TILESET_SIDELENGTH
         self.tileset_new_sidelength = int(TILESET_SIDELENGTH * self.scale_factor)
         self.number_of_spots = self.screen_width // self.tileset_new_sidelength
@@ -283,12 +283,13 @@ class World(object):
         """For automated scrolling"""
         platforms_to_remove = []
         highest_y = self.screen_height
-        # Go through all the sprite lists and shift
-        self.lowest_y += shift_y
+        # Shift player
         self.player.rect.y += shift_y
         self.player.rect.x += shift_x
         self.player.collide_rect.y += shift_y
         self.player.collide_rect.x += shift_x
+
+        # Shift platforms
         for platform in self.platform_list:
             platform.rect.y += shift_y
             platform.collide_rect.y += shift_y
@@ -296,15 +297,15 @@ class World(object):
             platform.collide_rect.x += shift_x
             if platform.rect.y < highest_y:
                 highest_y = platform.rect.y
-                print(highest_y)
             if platform.rect.top > self.screen_height + self.player.rect.height:
                 platforms_to_remove.append(platform)
-        if highest_y > 0:
-            print(highest_y)
-            self.create_platforms(highest_y - self.tileset_new_sidelength * 3)
+        # remove platforms that are out of bounds
         if platforms_to_remove:
             self.platform_list.remove(platforms_to_remove)
             platforms_to_remove.clear()
+        # create new platforms
+        if highest_y > -self.tileset_new_sidelength * 3:  # Buffer
+            self.create_platforms(highest_y - self.tileset_new_sidelength * 3)
 
     def update(self):
         self.platform_list.update()

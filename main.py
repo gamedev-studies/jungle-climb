@@ -73,7 +73,6 @@ def save_score(user_score: int) -> bool:
     """
     Takes a score and saves to file if it is a top 10 score else it returns False
     :param user_score: the score of the user
-    :param path: high score text file location
     :return: boolean indicating whether the score was a top 10 score
     """
     scores = config['high_scores']
@@ -110,7 +109,8 @@ def draw_circle(surface, x, y, radius, color):
     gfxdraw.filled_circle(surface, x, y, radius, color)
 
 
-def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True, draw_toggle=True, blit_text=True, enabled_color=LIGHT_BLUE, disabled_color=GREY):
+def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True, draw_toggle=True, blit_text=True,
+               enabled_color=LIGHT_BLUE, disabled_color=GREY):
     mouse = pygame.mouse.get_pos()
     # draw_toggle and blit_text are used to reduce redundant drawing and blitting (improves quality)
     rect_height = h // 2
@@ -337,6 +337,7 @@ def end_game_setup(score, surface_copy=None):
 
 
 def end_game(score):
+    show_mouse()
     view_hs = False
     end_screen_copy = end_game_setup(score)
     if save_score(score): pass  # Show "You got a high score!"
@@ -368,20 +369,18 @@ def end_game(score):
 def game():
     global music_playing
     hide_mouse()
-    restart, game_over, start_shifting = False, False, False
     if not music_playing and config['background_music']:
         pygame.mixer.Channel(0).play(MUSIC_SOUND, loops=-1)
         music_playing = True
     world = World()
     player = Player(world)
     player.force_stop()
-    player_sprite_group = pygame.sprite.Group(player)
     world.player = player
-    world_shift_speed = round(WORLD_SHIFT_SPEED_PERCENT * SCREEN_HEIGHT)  # NOTE: percent of screen
-    speed_increment = world_shift_speed
+    world_shift_speed = 0
+    speed_increment = round(WORLD_SHIFT_SPEED_PERCENT * SCREEN_HEIGHT)
     MAX_SPEED = speed_increment * 4
     speed_level, score = 1, 0
-    shift_thresh = 0.75 * SCREEN_HEIGHT
+    shift_threshold = 0.75 * SCREEN_HEIGHT
     SCREEN.fill(BACKGROUND)
     world.draw(SCREEN)
     pygame.display.update()
@@ -396,8 +395,6 @@ def game():
             if config['background_music']:
                 pygame.mixer.Channel(0).unpause()
                 music_playing = True
-        player_old_rect = player.rect.copy()
-        dirty_rects = []
         for event in pygame.event.get():
             pressed_keys = pygame.key.get_pressed()
             alt_f4 = (event.type == KEYDOWN and event.key == K_F4
@@ -426,25 +423,16 @@ def game():
             if event.type == KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
                     player.stop(pressed_keys)
-
-        player_new_rect = player.update()
-
-        if start_shifting:
+        player.update()
+        if world_shift_speed:
             # if pygame.time.get_ticks() % 2 == 0:
             world.shift_world(world_shift_speed)
             score += 1
-            # if score > 1000 * speed_level:
-            #     world_shift_speed = min(world_shift_speed + speed_increment, MAX_SPEED)
-            #     speed_level += 1
             if score > 1000 * world_shift_speed + (world_shift_speed - 1) * 1000:
-                world_shift_speed = min(world_shift_speed * 2, MAX_SPEED)
-        elif player.rect.top < shift_thresh: start_shifting = True
-
+                world_shift_speed = max(world_shift_speed + speed_increment, MAX_SPEED)
+        elif player.rect.top < shift_threshold: world_shift_speed = speed_increment
         SCREEN.fill(BACKGROUND)
-        player_union_rect = player_new_rect.union(player_old_rect)
-        # pygame.draw.rect(SCREEN, BACKGROUND, player_old_rect)
-        dirty_rects.append(player_union_rect)
-        player_sprite_group.draw(SCREEN)
+        player.draw(SCREEN)
         world.draw(SCREEN)
         if DEBUG:
             custom_text = f'Platform Sprites: {len(world.platform_list)}'
@@ -462,12 +450,10 @@ def game():
         pygame.display.update()
         clock.tick(60)
         if player.rect.top > SCREEN_HEIGHT + player.rect.height // 2:
-            game_over = True
             if music_playing:
                 pygame.mixer.Channel(0).stop()
                 music_playing = False
-            break
-    if game_over: return end_game(score)  # always runs
+            return end_game(score)
 
 
 if __name__ == '__main__':
