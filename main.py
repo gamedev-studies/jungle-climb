@@ -34,6 +34,7 @@ CONFIG_FILE = 'config.json'
 config = {'DEBUG': False, 'jump_sound': True, 'background_music': True, 'show_fps': False, 'show_score': True,
           'high_scores': [0, 0, 0, 0, 0, 0, 0, 0, 0]}
 music_playing = False
+delta_time = 0
 
 
 def save_config():
@@ -99,7 +100,7 @@ def button(text, x, y, w, h, click, inactive_colour=BLUE, active_colour=LIGHT_BL
     else: pygame.draw.rect(SCREEN, inactive_colour, (x, y, w, h))
 
     text_surf, text_rect = text_objects(text, SMALL_TEXT, colour=text_colour)
-    text_rect.center = (x + w / 2, y + h / 2)
+    text_rect.center = (int(x + w / 2), int(y + h / 2))
     SCREEN.blit(text_surf, text_rect)
     return return_value
 
@@ -137,15 +138,15 @@ def toggle_btn(text, x, y, w, h, click, text_colour=BLACK, enabled=True, draw_to
 def view_high_scores():
     SCREEN.fill(WHITE)
     text_surf, text_rect = text_objects('High Scores', MENU_TEXT)
-    text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 6))
+    text_rect.center = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 6))
     SCREEN.blit(text_surf, text_rect)
     for i, score in enumerate(config['high_scores']):
         text_surf, text_rect = text_objects(str(score), LARGE_TEXT)
-        text_rect.center = ((SCREEN_WIDTH / 2), ((i/1.5 + 3) * SCREEN_HEIGHT / 11))
+        text_rect.center = (SCREEN_WIDTH // 2, int(SCREEN_HEIGHT * (i / 1.5 + 3) // 11))
         SCREEN.blit(text_surf, text_rect)
     on_high_scores = True
     pygame.display.update()
-    button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 4 / 5, BUTTON_WIDTH, BUTTON_HEIGHT)]
+    back_button_rect = ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 4 // 5, BUTTON_WIDTH, BUTTON_HEIGHT)
     while on_high_scores:
         click = False
         pressed_keys = pygame.key.get_pressed()
@@ -155,8 +156,8 @@ def view_high_scores():
             if event.type == QUIT or alt_f4: sys.exit()
             elif event.type == KEYDOWN and (event.key == K_ESCAPE or event.key == K_BACKSPACE): on_high_scores = False
             elif event.type == MOUSEBUTTONDOWN: click = True
-        if button('B A C K', *button_rects[0], click): break
-        pygame.display.update(button_rects)
+        if button('B A C K', *back_button_rect, click): break
+        pygame.display.update([back_button_rect])
         clock.tick(60)
 
 
@@ -174,13 +175,13 @@ def main_menu_setup():
     show_mouse()
     SCREEN.fill(WHITE)
     text_surf, text_rect = text_objects('Jungle Climb', MENU_TEXT)
-    text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
+    text_rect.center = (int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 4))
     SCREEN.blit(text_surf, text_rect)
     text_surf, text_rect = text_objects(f'v{VERSION}', SMALL_TEXT)
-    text_rect.center = ((SCREEN_WIDTH * 0.98), (SCREEN_HEIGHT * 0.98))
+    text_rect.center = (int(SCREEN_WIDTH * 0.98), int(SCREEN_HEIGHT * 0.98))
     SCREEN.blit(text_surf, text_rect)
     text_surf, text_rect = text_objects('Created by Elijah Lopez', LARGE_TEXT)
-    text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT * 0.84))
+    text_rect.center = (int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT * 0.84))
     SCREEN.blit(text_surf, text_rect)
     pygame.display.update()
 
@@ -188,12 +189,7 @@ def main_menu_setup():
 def main_menu():
     global ticks
     main_menu_setup()
-    ticks = pygame.time.get_ticks()
     start_game = view_hs = False
-    button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 5 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 6 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 7 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 8 / 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
     while True:
         click = False
         pressed_keys = pygame.key.get_pressed()
@@ -206,32 +202,28 @@ def main_menu():
             elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
             elif event.type == MOUSEBUTTONDOWN: click = True
 
-        if button('S T A R T  G A M E', *button_rects[0], click): start_game = True
-        elif button('V I E W  H I G H S C O R E S', *button_rects[1], click) or view_hs:
+        if button('S T A R T  G A M E', *button_layout_4[0], click): start_game = True
+        elif button('V I E W  H I G H S C O R E S', *button_layout_4[1], click) or view_hs:
             view_high_scores()
             view_hs = False
             main_menu_setup()
-        elif button('S E T T I N G S', *button_rects[2], click):
+        elif button('S E T T I N G S', *button_layout_4[2], click):
             settings_menu()
             main_menu_setup()
-        elif button('Q U I T  G A M E', *button_rects[3], click): sys.exit()
+        elif button('Q U I T  G A M E', *button_layout_4[3], click): sys.exit()
         if start_game:
             while start_game: start_game = game() == 'Restart'
             main_menu_setup()
-        pygame.display.update(button_rects)
+        pygame.display.update(button_layout_4)
         clock.tick(60)
 
 
 def settings_menu():
     SCREEN.fill(WHITE)
     text_surf, text_rect = text_objects('Settings', MENU_TEXT)
-    text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
+    text_rect.center = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 4))
     SCREEN.blit(text_surf, text_rect)
     pygame.display.update()
-    button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 6 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) // 2, SCREEN_HEIGHT * 8 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
     first_run = draw_bg_toggle = draw_jump_toggle = draw_show_fps = True
     while True:
         click = False
@@ -242,25 +234,25 @@ def settings_menu():
             if event.type == QUIT or alt_f4: sys.exit()
             elif event.type == KEYDOWN and event.key == K_ESCAPE: return
             elif event.type == MOUSEBUTTONDOWN: click = True
-        if toggle_btn('Background Music', *button_rects[0], click, enabled=config['background_music'],
+        if toggle_btn('Background Music', *button_layout_4[0], click, enabled=config['background_music'],
                       draw_toggle=draw_bg_toggle, blit_text=first_run):
             config['background_music'] = not config['background_music']
             save_config()
             draw_bg_toggle = True
-        elif toggle_btn('Jump Sound', *button_rects[1], click, enabled=config['jump_sound'],
+        elif toggle_btn('Jump Sound', *button_layout_4[1], click, enabled=config['jump_sound'],
                         draw_toggle=draw_jump_toggle, blit_text=first_run):
             config['jump_sound'] = not config['jump_sound']
             save_config()
             draw_jump_toggle = True
-        elif toggle_btn('Show FPS', *button_rects[2], click, enabled=config['show_fps'],
+        elif toggle_btn('Show FPS', *button_layout_4[2], click, enabled=config['show_fps'],
                         draw_toggle=draw_show_fps, blit_text=first_run):
             config['show_fps'] = not config['show_fps']
             save_config()
             draw_show_fps = True
-        elif button('B A C K', *button_rects[3], click): return
+        elif button('B A C K', *button_layout_4[3], click): return
         else: draw_bg_toggle = draw_jump_toggle = draw_show_fps = False
         first_run = False
-        pygame.display.update(button_rects)
+        pygame.display.update(button_layout_4)
         clock.tick(60)
 
 
@@ -268,7 +260,7 @@ def pause_menu_setup(background):
     SCREEN.blit(background, (0, 0))
     background = SCREEN.copy()
     text_surf, text_rect = text_objects('Pause Menu', MENU_TEXT, colour=WHITE)
-    text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
+    text_rect.center = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 4))
     SCREEN.blit(text_surf, text_rect)
     pygame.display.update()
     return background
@@ -282,10 +274,6 @@ def pause_menu(player):
     # background.fill((255, 255, 255, 160))
     background.fill((*MATTE_BLACK, 160))
     background = pause_menu_setup(background)
-    button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 5 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 6 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 7 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 8 / 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
     while paused:
         click = False
         pks = pressed_keys = pygame.key.get_pressed()
@@ -307,13 +295,13 @@ def pause_menu(player):
                 if event.key in (K_d, K_RIGHT, K_a, K_LEFT):
                     player.stop(pygame.key.get_pressed())
                     player.facing_right = facing_left
-        if button('R E S U M E', *button_rects[0], click): return 'Resume'
-        elif button('M A I N  M E N U', *button_rects[1], click): return 'Main Menu'
-        elif button('S E T T I N G S', *button_rects[2], click):
+        if button('R E S U M E', *button_layout_4[0], click): return 'Resume'
+        elif button('M A I N  M E N U', *button_layout_4[1], click): return 'Main Menu'
+        elif button('S E T T I N G S', *button_layout_4[2], click):
             settings_menu()
             pause_menu_setup(background)
-        elif button('Q U I T  G A M E', *button_rects[3], click): sys.exit()
-        pygame.display.update(button_rects)
+        elif button('Q U I T  G A M E', *button_layout_4[3], click): sys.exit()
+        pygame.display.update(button_layout_4)
         clock.tick(60)
     return 'Resume'
 
@@ -326,10 +314,10 @@ def end_game_setup(score, surface_copy=None):
         background.fill((255, 255, 255, 160))
         SCREEN.blit(background, (0, 0))
         text_surf, text_rect = text_objects('Game Over', MENU_TEXT)
-        text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 4))
+        text_rect.center = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 4))
         SCREEN.blit(text_surf, text_rect)
         text_surf, text_rect = text_objects(f'You scored {score}', LARGE_TEXT)
-        text_rect.center = ((SCREEN_WIDTH / 2), (SCREEN_HEIGHT * 8 / 21))
+        text_rect.center = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT * 8 // 21))
         SCREEN.blit(text_surf, text_rect)
         surface_copy = pygame.display.get_surface().copy()
     pygame.display.update()
@@ -341,9 +329,9 @@ def end_game(score):
     view_hs = False
     end_screen_copy = end_game_setup(score)
     if save_score(score): pass  # Show "You got a high score!"
-    button_rects = [((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 6 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 7 / 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                    ((SCREEN_WIDTH - BUTTON_WIDTH) / 2, SCREEN_HEIGHT * 8 / 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
+    button_layout_3 = [(button_x_start, SCREEN_HEIGHT * 6 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, SCREEN_HEIGHT * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, SCREEN_HEIGHT * 8 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
     while True:
         click, pressed_keys = False, pygame.key.get_pressed()
         for event in pygame.event.get():
@@ -354,20 +342,20 @@ def end_game(score):
             elif event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_r): return 'Restart'
             elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
             elif event.type == MOUSEBUTTONDOWN: click = True
-        if button('R E S T A R T', *button_rects[0], click): return 'Restart'
-        elif button('M A I N  M E N U', *button_rects[1], click):
+        if button('R E S T A R T', *button_layout_3[0], click): return 'Restart'
+        elif button('M A I N  M E N U', *button_layout_3[1], click):
             main_menu()
             return 'Main Menu'
-        elif button('V I E W  H I G H S C O R E S', *button_rects[2], click) or view_hs:
+        elif button('V I E W  H I G H S C O R E S', *button_layout_3[2], click) or view_hs:
             view_high_scores()
             view_hs = False
             end_game_setup(score, end_screen_copy)
-        pygame.display.update(button_rects)
+        pygame.display.update(button_layout_3)
         clock.tick(60)
 
 
 def game():
-    global music_playing
+    global music_playing, delta_time
     hide_mouse()
     if not music_playing and config['background_music']:
         pygame.mixer.Channel(0).play(MUSIC_SOUND, loops=-1)
@@ -423,9 +411,8 @@ def game():
             if event.type == KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
                     player.stop(pressed_keys)
-        player.update()
+        player.update(delta_time)
         if world_shift_speed:
-            # if pygame.time.get_ticks() % 2 == 0:
             world.shift_world(world_shift_speed)
             score += 1
             if score > 1000 * world_shift_speed + (world_shift_speed - 1) * 1000:
@@ -448,12 +435,12 @@ def game():
             score_rect.topright = SCORE_ANCHOR
             SCREEN.blit(score_bg, score_rect)
         pygame.display.update()
-        clock.tick(60)
         if player.rect.top > SCREEN_HEIGHT + player.rect.height // 2:
             if music_playing:
                 pygame.mixer.Channel(0).stop()
                 music_playing = False
             return end_game(score)
+        delta_time = clock.tick(60) / 1000  # milliseconds -> seconds
 
 
 if __name__ == '__main__':
@@ -466,17 +453,22 @@ if __name__ == '__main__':
     MUSIC_SOUND = pygame.mixer.Sound('assets/audio/background_music.ogg')
     music_playing = False
     pygame.init()
-    SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
+    SCREEN_WIDTH, SCREEN_HEIGHT = int(pygame.display.Info().current_w), int(pygame.display.Info().current_h)
     FULLSCREEN = True
     if FULLSCREEN:
         SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
     else:
         SCREEN_WIDTH, SCREEN_HEIGHT = int(0.75 * SCREEN_WIDTH), int(0.75 * SCREEN_HEIGHT)
         SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    BUTTON_WIDTH = SCREEN_WIDTH * 0.625 // 3
-    BUTTON_HEIGHT = SCREEN_HEIGHT * 5 // 81
-    TOGGLE_WIDTH = BUTTON_WIDTH * 0.875
-    TOGGLE_ADJ = BUTTON_WIDTH * 0.075
+    BUTTON_WIDTH = int(SCREEN_WIDTH * 0.625 // 3)
+    BUTTON_HEIGHT = int(SCREEN_HEIGHT * 5 // 81)
+    button_x_start = (SCREEN_WIDTH - BUTTON_WIDTH) // 2
+    button_layout_4 = [(button_x_start, SCREEN_HEIGHT * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, SCREEN_HEIGHT * 6 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, SCREEN_HEIGHT * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, SCREEN_HEIGHT * 8 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
+    TOGGLE_WIDTH = int(BUTTON_WIDTH * 0.875)
+    TOGGLE_ADJ = int(BUTTON_WIDTH * 0.075)
     SCORE_ANCHOR = SCREEN_WIDTH - 8, -5
     MENU_TEXT = pygame.font.Font(FONT_LIGHT, int(110 / 1080 * SCREEN_HEIGHT))
     LARGE_TEXT = pygame.font.Font(FONT_REG, int(40 / 1080 * SCREEN_HEIGHT))

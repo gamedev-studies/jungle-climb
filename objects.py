@@ -2,6 +2,18 @@ import random
 from math import ceil
 import pygame
 from extracter import extract_images, extract_platforms, scale_image
+import time
+from functools import wraps
+
+
+def timing(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        _start = time.time()
+        result = f(*args, **kwargs)
+        print(f'@timing {f.__name__} ELAPSED TIME:', time.time() - _start)
+        return result
+    return wrapper
 
 
 CURRENT_W, CURRENT_H = pygame.display.Info().current_w, pygame.display.Info().current_h
@@ -27,8 +39,8 @@ class Player(pygame.sprite.Sprite):
     MID_AIR_PATH = 'assets/sprites/mid air.png'
     RUN_PATH = 'assets/sprites/run.png'
 
-    RUNNING_SPEED = round(CURRENT_W / 200)
-    JUMP_SPEED = round(CURRENT_H / -40.5)
+    RUNNING_SPEED = round(CURRENT_W / 200)  # pixels / (1/60) seconds
+    JUMP_SPEED = round(CURRENT_H / -40.5)   # pixels / (1/60) seconds
     GRAVITY_CONSTANT = -0.05 * JUMP_SPEED
     # NOTE: 35 is the idle height for outline, 34 is for no outline
     scale_factor = CURRENT_H * PERCENT_OF_SCREEN_HEIGHT / 34
@@ -130,7 +142,7 @@ class Player(pygame.sprite.Sprite):
                 self.image = self.get_image(self.mid_air_images, True)
                 self.animation_frame = f'mid-air up {self.facing_right}'
 
-    def update(self):
+    def update(self, seconds_passed=1/60):
         self.gravity()
         self.rect.y += self.speed[1]
 
