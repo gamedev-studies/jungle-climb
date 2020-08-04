@@ -205,7 +205,6 @@ class Player(pygame.sprite.Sprite):
             self.image = self.get_image(self.jump_images)
             # self.image = pygame.transform.flip(self.jump_frame, self.FACING_LEFT, False)
             self.speed[1] = self.JUMP_SPEED
-            print(self.JUMP_SPEED)
             self.on_ground = False
             self.animation_frame = 'jump'
 
