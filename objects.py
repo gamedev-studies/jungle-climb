@@ -24,7 +24,8 @@ JUMP_SOUND.set_volume(0.3)
 class Player(pygame.sprite.Sprite):
     # INITIAL_SPEED = 3
     PERCENT_OF_SCREEN_HEIGHT = 0.1296296296296296
-    CHANGE_ANIMATION = 4  # Todo: make this a dictionary
+    ANIMATION_SPEED = 4   # frames before updating the running or idle animation frame
+    change_animation = 2  # Todo: make this a dictionary
 
     facing_right = True
     on_ground = True
@@ -67,30 +68,25 @@ class Player(pygame.sprite.Sprite):
     for image in extract_images(RUN_PATH, 21, scale_factor):  # 23 with outline, 21 without
         run_images[0].append(pygame.transform.flip(image, True, False))
         run_images[1].append(image)
-
     # first percent is the grass percent of the tile (3/TILE_SIDELENGTH)
     # second percent is the percent of screen height for a tile
     GROUND_ADJUSTMENT = ceil(0.1111111111111111 * 0.07901234567901234 * CURRENT_H)
 
-    def __init__(self, world, pos: tuple = None):
-        """
-        :param pos: (x, y) tuple where 0, 0 is the top left
-        """
-        super().__init__()
+    def __init__(self, world):
+        super(Player, self).__init__()
 
         self.world = world
         self.image: pygame.Surface = self.idle_images[1][0]
-        # fixme: collision rect
         self.rect: pygame.Rect = self.image.get_rect()
         collide_width = self.rect.width - 8 * self.scale_factor
         self.collide_rect: pygame.Rect = pygame.rect.Rect((0, 0), (collide_width, self.rect.height))
-        if pos is None:
-            pos = (0.05 * CURRENT_W, 0.92098765432098766 * CURRENT_H + self.GROUND_ADJUSTMENT)
-        self.rect.bottomleft = pos
-        self.collide_rect.midbottom = self.rect.midbottom
+        self.rect.left = 0.05 * CURRENT_W
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
+
+    def reset_change_animation(self):
+        self.change_animation = self.ANIMATION_SPEED
 
     def get_image(self, images: list, index: int = None) -> pygame.image:
         """
@@ -106,25 +102,23 @@ class Player(pygame.sprite.Sprite):
         """
         Updates the idle animation
         """
-        if self.CHANGE_ANIMATION <= 0:
+        if self.change_animation <= 0:
             self.image = self.get_image(self.idle_images, self.idle_index)
             self.idle_index += 1
-            self.CHANGE_ANIMATION = 4
             if self.idle_index >= len(self.idle_images[0]): self.idle_index = 0
-        else:
-            self.CHANGE_ANIMATION -= 1
+            self.reset_change_animation()
+        else: self.change_animation -= 1
 
     def update_running(self):
         """
         Updates the running animations
         """
-        if self.CHANGE_ANIMATION <= 0:
+        if self.change_animation <= 0:
             self.image = self.get_image(self.run_images, self.running_index)
             self.running_index += 1
-            self.CHANGE_ANIMATION = 4
             if self.running_index >= len(self.run_images[0]): self.running_index = 0
-        else:
-            self.CHANGE_ANIMATION -= 1
+            self.reset_change_animation()
+        else: self.change_animation -= 1
 
     def gravity(self):
         self.on_ground = False
@@ -134,12 +128,13 @@ class Player(pygame.sprite.Sprite):
                 break
         if not self.on_ground:
             # TODO: add landing image if statement
+            # NOTE: positive number means player is going down
             self.speed[1] += self.GRAVITY_CONSTANT
             if self.speed[1] > 0 and self.animation_frame != f'mid-air down {self.facing_right}':
-                self.image = self.get_image(self.mid_air_images, False)
+                self.image = self.get_image(self.mid_air_images, 1)
                 self.animation_frame = f'mid-air down {self.facing_right}'
             elif 0 > self.speed[1] >= -12 and self.animation_frame != f'mid-air up {self.facing_right}':
-                self.image = self.get_image(self.mid_air_images, True)
+                self.image = self.get_image(self.mid_air_images, 0)
                 self.animation_frame = f'mid-air up {self.facing_right}'
 
     def update(self, seconds_passed=1/60):
@@ -171,15 +166,9 @@ class Player(pygame.sprite.Sprite):
         if self.speed == [0, 0]:  # if standing still
             self.update_idle()
             self.animation_frame = 'idle'
-            # if self.animation_frame != 'idle':
-            #     self.animation_frame = 'idle'
-            #     self.update_rect()
         elif self.speed[0] != 0 and self.on_ground:  # animate only if running on the ground
             self.update_running()
             self.animation_frame = 'running'
-            # if self.animation_frame != 'running':
-            #     self.animation_frame = 'running'
-            #     self.update_rect()
         return self.rect
 
     def stop(self, pressed_keys):
@@ -216,6 +205,7 @@ class Player(pygame.sprite.Sprite):
             self.image = self.get_image(self.jump_images)
             # self.image = pygame.transform.flip(self.jump_frame, self.FACING_LEFT, False)
             self.speed[1] = self.JUMP_SPEED
+            print(self.JUMP_SPEED)
             self.on_ground = False
             self.animation_frame = 'jump'
 
@@ -223,10 +213,8 @@ class Player(pygame.sprite.Sprite):
         pos = self.rect.bottomleft
         self.rect: pygame.Rect = self.image.get_rect()
         collide_width = self.rect.width - 8 * self.scale_factor
-        self.collide_rect: pygame.Rect = pygame.rect.Rect((0, 0), (collide_width, self.rect.height))
-        # if pos is None:
-        #     pos = (0.05 * current_w, 0.92098765432098766 * current_h + self.GROUND_ADJUSTMENT)
         self.rect.bottomleft = pos
+        self.collide_rect: pygame.Rect = pygame.rect.Rect((0, 0), (collide_width, self.rect.height))
         self.collide_rect.midbottom = self.rect.midbottom
 
 
@@ -239,7 +227,7 @@ class Platform(pygame.sprite.Sprite):
     images = {'left': images[0], 'centre': images[1], 'right': images[2]}
 
     def __init__(self, x, y, platform_type='centre'):
-        super().__init__()
+        super(Platform, self).__init__()
         # 16 is the height of the sprite in pixels
         self.image = self.images[platform_type.lower()]
         self.rect = self.image.get_rect()
@@ -251,7 +239,7 @@ class Platform(pygame.sprite.Sprite):
         self.collide_rect.midbottom = self.rect.midbottom
 
 
-class World(object):
+class World:
     P_PLATFORM = 0.8  # probability of platforms
     difficulty = 1
 
@@ -272,6 +260,11 @@ class World(object):
 
     def draw(self, screen):
         self.platform_list.draw(screen)
+
+    def set_player(self, player: Player):
+        player.rect.bottom = CURRENT_H - self.tileset_new_sidelength + player.GROUND_ADJUSTMENT
+        player.collide_rect.midbottom = player.rect.midbottom
+        self.player = player
 
     def create_platforms(self, pos_y):
         # Note: player can jump to a height of two platforms

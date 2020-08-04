@@ -26,7 +26,6 @@ def extract_platforms(source_path='assets/images/jungle tileset.png', scale_fact
     return [scale_image(sheet.subsurface(coords), scale_factor) for coords in platform_coords]
 
 
-
 def extract_vines(source_path='assets/images/jungle tileset.png', scale_factor=1):
     sheet = pygame.image.load(source_path).convert_alpha()
     vine_coords = [(21*16, 12*16, 24*16, 15 * 16)]  # big vine
@@ -42,7 +41,7 @@ def extract_images(path: str, sprite_width: int, scale_factor=1) -> list:
     :param sprite_width: width of a sprite in pixels
     :return: list of images of the sprite sheets
     """
-    sheet = pygame.image.load(path).convert_alpha()
+    sheet = pygame.image.load(path)  # .convert_alpha()
     width, h = sheet.get_size()
     sprites = int(width / sprite_width)
     images = []

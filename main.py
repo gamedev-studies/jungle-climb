@@ -363,15 +363,13 @@ def game():
     world = World()
     player = Player(world)
     player.force_stop()
-    world.player = player
+    world.set_player(player)
     world_shift_speed = 0
     speed_increment = round(WORLD_SHIFT_SPEED_PERCENT * SCREEN_HEIGHT)
     MAX_SPEED = speed_increment * 4
     speed_level, score = 1, 0
     shift_threshold = 0.75 * SCREEN_HEIGHT
-    SCREEN.fill(BACKGROUND)
-    world.draw(SCREEN)
-    pygame.display.update()
+    # TODO: cool starting animation?
     while True:
         # TODO: make background with vines
         if not pygame.mouse.get_focused():
@@ -413,14 +411,14 @@ def game():
                     player.stop(pressed_keys)
         player.update(delta_time)
         if world_shift_speed:
-            world.shift_world(world_shift_speed)
+            # world.shift_world(world_shift_speed)
             score += 1
             if score > 1000 * world_shift_speed + (world_shift_speed - 1) * 1000:
                 world_shift_speed = min(world_shift_speed + speed_increment, MAX_SPEED)
         elif player.rect.top < shift_threshold: world_shift_speed = speed_increment
         SCREEN.fill(BACKGROUND)
         player.draw(SCREEN)
-        world.draw(SCREEN)
+        world.draw(SCREEN)  # some grass appears in front of player
         if DEBUG:
             custom_text = f'Platform Sprites: {len(world.platform_list)}'
             custom_bg, custom_rect = create_hud_text(custom_text, RED)
