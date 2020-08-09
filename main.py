@@ -17,7 +17,6 @@ VERSION = '1.14'
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
 MATTE_BLACK = 20, 20, 20
-# GREEN = 50, 205, 50
 GREEN = 40, 175, 99
 RED = 255, 0, 0
 YELLOW = 250, 237, 39
@@ -271,7 +270,6 @@ def pause_menu(player):
     paused = True
     facing_left = player.facing_right  # store the pre-pause value in case player doesn't hold a right/left key down
     background = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA, 32)
-    # background.fill((255, 255, 255, 160))
     background.fill((*MATTE_BLACK, 160))
     background = pause_menu_setup(background)
     while paused:
