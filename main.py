@@ -12,7 +12,7 @@ from pygame import gfxdraw, K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4
 import pygame
 
 
-VERSION = '1.14'
+VERSION = '1.15'
 # CONSTANTS
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
@@ -409,14 +409,19 @@ def game():
                     player.stop(pressed_keys)
         player.update(delta_time)
         if world_shift_speed:
-            world.shift_world(world_shift_speed)
+            for _ in range(world_shift_speed):
+                world.shift_world(1)
+                SCREEN.fill(BACKGROUND)
+                player.draw(SCREEN)
+                world.draw(SCREEN)  # some grass appears in front of player
             score += 1
             if score > 1000 * world_shift_speed + (world_shift_speed - 1) * 1000:
                 world_shift_speed = min(world_shift_speed + speed_increment, MAX_SPEED)
-        elif player.rect.top < shift_threshold: world_shift_speed = speed_increment
-        SCREEN.fill(BACKGROUND)
-        player.draw(SCREEN)
-        world.draw(SCREEN)  # some grass appears in front of player
+        else:
+            SCREEN.fill(BACKGROUND)
+            player.draw(SCREEN)
+            world.draw(SCREEN)  # some grass appears in front of player
+            if player.rect.top < shift_threshold: world_shift_speed = speed_increment
         if DEBUG:
             custom_text = f'Platform Sprites: {len(world.platform_list)}'
             custom_bg, custom_rect = create_hud_text(custom_text, RED)
