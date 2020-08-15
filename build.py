@@ -31,8 +31,8 @@ copyright_text = f'Copyright 2019 - {datetime.now().year} Elijah Lopez'
 executables = [Executable('main.py', base='Win32GUI', icon='resources/Jungle Climb Icon.ico', targetName=NAME)]
 rmtree('build')
 setup(name=NAME, version=VERSION, description=f'{NAME} {copyright_text}',
-    options={'build_exe': {'packages': PACKAGES,
-                           'include_files': ['assets'],
-                           'excludes': EXCLUDES,
-                           'optimize': 2}},
-    executables=executables)
+      options={'build_exe': {'packages': PACKAGES,
+                             'include_files': ['assets'],
+                             'excludes': EXCLUDES,
+                             'optimize': 2}},
+      executables=executables)
