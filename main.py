@@ -294,8 +294,8 @@ def pause_menu(player):
                     player.stop(pygame.key.get_pressed())
                     player.facing_right = facing_left
         if button('R E S U M E', *button_layout_4[0], click): return 'Resume'
-        elif button('M A I N  M E N U', *button_layout_4[1], click): return 'Main Menu'
-        elif button('S E T T I N G S', *button_layout_4[2], click):
+        if button('M A I N  M E N U', *button_layout_4[1], click): return 'Main Menu'
+        if button('S E T T I N G S', *button_layout_4[2], click):
             settings_menu()
             pause_menu_setup(background)
         elif button('Q U I T  G A M E', *button_layout_4[3], click): sys.exit()
@@ -341,9 +341,7 @@ def end_game(score):
             elif event.type == KEYDOWN and (event.key == K_v or event.key == K_h): view_hs = True
             elif event.type == MOUSEBUTTONDOWN: click = True
         if button('R E S T A R T', *button_layout_3[0], click): return 'Restart'
-        elif button('M A I N  M E N U', *button_layout_3[1], click):
-            main_menu()
-            return 'Main Menu'
+        if button('M A I N  M E N U', *button_layout_3[1], click): return 'Main Menu'
         elif button('V I E W  H I G H S C O R E S', *button_layout_3[2], click) or view_hs:
             view_high_scores()
             view_hs = False
