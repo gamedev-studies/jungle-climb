@@ -12,7 +12,7 @@ from pygame import gfxdraw, K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4
 import pygame
 
 
-VERSION = '1.15'
+VERSION = '1.16'
 # CONSTANTS
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
@@ -258,7 +258,7 @@ def settings_menu():
 def pause_menu_setup(background):
     SCREEN.blit(background, (0, 0))
     background = SCREEN.copy()
-    text_surf, text_rect = text_objects('Pause Menu', MENU_TEXT, colour=WHITE)
+    text_surf, text_rect = text_objects('Paused', MENU_TEXT, colour=WHITE)
     text_rect.center = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 4))
     SCREEN.blit(text_surf, text_rect)
     pygame.display.update()
