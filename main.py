@@ -12,7 +12,7 @@ from pygame import gfxdraw, K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4
 import pygame
 
 
-VERSION = '1.16'
+VERSION = '1.17'
 # CONSTANTS
 WHITE = 255, 255, 255
 BLACK = 0, 0, 0
@@ -355,6 +355,7 @@ def game():
     hide_mouse()
     if not music_playing and config['background_music']:
         pygame.mixer.Channel(0).play(MUSIC_SOUND, loops=-1)
+        pygame.mixer.Channel(0).set_volume(0.5)
         music_playing = True
     world = World()
     player = Player(world)
@@ -363,7 +364,8 @@ def game():
     world_shift_speed = 0
     speed_increment = round(WORLD_SHIFT_SPEED_PERCENT * SCREEN_HEIGHT)
     MAX_SPEED = speed_increment * 4
-    speed_level, score = 1, 0
+    # speed_level = 1
+    score = 0
     shift_threshold = 0.75 * SCREEN_HEIGHT
     # TODO: cool starting animation?
     while True:
@@ -375,7 +377,11 @@ def game():
             if pause_menu(player) == 'Main Menu': return 'Main Menu'
             else: hide_mouse()
             if config['background_music']:
-                pygame.mixer.Channel(0).unpause()
+                if pygame.mixer.Channel(0).get_busy():
+                    pygame.mixer.Channel(0).unpause()
+                else:
+                    pygame.mixer.Channel(0).play(MUSIC_SOUND, loops=-1)
+                    pygame.mixer.Channel(0).set_volume(0.5)
                 music_playing = True
         for event in pygame.event.get():
             pressed_keys = pygame.key.get_pressed()

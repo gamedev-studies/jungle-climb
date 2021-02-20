@@ -1,5 +1,5 @@
 #define MyAppName "Jungle Climb"
-#define MyAppVersion "1.16"
+#define MyAppVersion "1.17"
 #define MyAppPublisher "Elijah Lopez"
 #define MyAppURL "https://elijahlopez.herokuapp.com/software#jungle-climb"
 #define MyAppExeName "Jungle Climb.exe"
