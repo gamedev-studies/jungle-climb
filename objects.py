@@ -18,7 +18,7 @@ def timing(f):
 
 CURRENT_W, CURRENT_H = pygame.display.Info().current_w, pygame.display.Info().current_h
 JUMP_SOUND = pygame.mixer.Sound('assets/audio/jump.ogg')
-JUMP_SOUND.set_volume(0.3)
+JUMP_SOUND.set_volume(0)
 
 
 class Player(pygame.sprite.Sprite):
@@ -262,6 +262,7 @@ class World:
 
     def set_player(self, player: Player):
         player.rect.bottom = CURRENT_H - self.tileset_new_sidelength + player.GROUND_ADJUSTMENT
+        player.rect.right = CURRENT_W / 2
         player.collide_rect.midbottom = player.rect.midbottom
         self.player = player
 

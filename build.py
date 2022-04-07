@@ -1,7 +1,7 @@
 from cx_Freeze import setup, Executable
 import subprocess
 import sys
-from main import VERSION
+from climber_game import VERSION
 from datetime import datetime
 from shutil import rmtree
 
