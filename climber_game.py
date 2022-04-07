@@ -374,14 +374,12 @@ class ClimberGame():
             alt_f4 = (event.type == KEYDOWN and event.key == K_F4
                     and (pressed_keys[K_LALT] or pressed_keys[K_RALT]))
             if event.type == QUIT or alt_f4: sys.exit()
-            if event.type == KEYDOWN:
-                # check human interaction
-                if action == -1:
-                    right_key = event.key == K_RIGHT and not pressed_keys[K_d] or event.key == K_d and not pressed_keys[K_RIGHT]
-                    left_key = event.key == K_LEFT and not pressed_keys[K_a] or event.key == K_a and not pressed_keys[K_LEFT]
-                    if right_key: self.player.go_right()
-                    elif left_key: self.player.go_left()
-                    elif event.key in (K_UP, K_w, K_SPACE): self.player.jump(self.config['jump_sound'])
+            if event.type == KEYDOWN and action == -1:
+                right_key = event.key == K_RIGHT and not pressed_keys[K_d] or event.key == K_d and not pressed_keys[K_RIGHT]
+                left_key = event.key == K_LEFT and not pressed_keys[K_a] or event.key == K_a and not pressed_keys[K_LEFT]
+                if right_key: self.player.go_right()
+                elif left_key: self.player.go_left()
+                elif event.key in (K_UP, K_w, K_SPACE): self.player.jump(self.config['jump_sound'])
                 if event.key == K_ESCAPE and not pressed_keys[K_p] or event.key == K_p and not pressed_keys[K_ESCAPE]:
                     pygame.mixer.Channel(0).pause()
                     self.music_playing = False
@@ -515,7 +513,7 @@ class ClimberGame():
         self.world_shift_speed = 0
         self.speed_increment = round(WORLD_SHIFT_SPEED_PERCENT * self.SCREEN_HEIGHT)
         self.MAX_SPEED = self.speed_increment * 4
-        # speed_level = 1
         self.score = 0
         self.shift_threshold = 0.75 * self.SCREEN_HEIGHT
-        #self.game()
+        event = Event(self.player.rect.top, self.player.rect.right, self.score, self.music_playing)
+        self.notify(event)

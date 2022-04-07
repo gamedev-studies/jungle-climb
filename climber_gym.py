@@ -34,14 +34,21 @@ class ClimberAgent(gym.Env):
     event = self.observer.event
     done = (self.observer.event.alive == False)
     info = {'score': self.observer.event.score}
+    print(self.observer.event.score)
+    print(self.observer.event.player_x)
+    print(self.observer.event.player_y)
+    print(self.observer.event.alive)
 
     # avoid being too close to the wall
-    if self.observer.event.player_x > 0 and self.observer.event.player_x < 200:
-      reward = -1
+    if self.observer.event.player_x > 100 and self.observer.event.player_x <= 700:
+      reward += 1
+    else:
+      reward -= 1
 
     # go up!
     if self.observer.event.player_y > self.prevYPos:
-      reward = 1
+      reward += 1
+      self.prevYPos = self.observer.event.player_y
     
     obs = [event.player_x, event.player_y, event.score, event.alive]
     return np.array(obs, dtype=np.float32), reward, done, info

@@ -7,7 +7,7 @@ model = PPO('MlpPolicy', env, verbose=1)
 model.learn(total_timesteps=50000) 
 obs = env.reset()
 model.save("models/model1")
-for i in range(0, 60):
+for i in range(0, 10):
     obs = env.reset()
     for episode in range(5000):
         action, _state = model.predict(obs, deterministic=True)
