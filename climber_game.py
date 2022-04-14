@@ -31,11 +31,12 @@ from pygame import gfxdraw, K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4
 import pygame
 
 class Event():
-    def __init__(self, player_x, player_y, score, alive):
+    def __init__(self, player_x, player_y, score, alive, has_jumped):
         self.player_x = player_x
         self.player_y = player_y
         self.score = score
         self.alive = alive
+        self.has_jumped = has_jumped
 
 class Observer():
     def __init__(self):
@@ -395,24 +396,27 @@ class ClimberGame():
             if event.type == KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
                     self.player.stop(pressed_keys)
+            print(self.player.rect.left, self.player.rect.top)
                     
         # react to commands from agent
         if action >= 0 and action < 3:
             self.player.go_right()
-        elif action >= 3 and action < 8:
+        elif action >= 3 and action < 6:
             self.player.go_left()
-        elif action >= 8:
+        elif action >= 6:
+            event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, True)
+            self.notify(event)
             self.player.jump(self.config['jump_sound'])
 
         if self.player.rect.top > self.SCREEN_HEIGHT + self.player.rect.height // 2:
             if self.music_playing:
                 pygame.mixer.Channel(0).stop()
                 self.music_playing = False
-            event = Event(self.player.rect.top, self.player.rect.right, self.score, self.music_playing)
+            event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, False)
             self.notify(event)
             return self.score
         self.delta_time = self.clock.tick(60) / 1000  # milliseconds -> seconds
-        event = Event(self.player.rect.top, self.player.rect.right, self.score, self.music_playing)
+        event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, False)
         self.notify(event)
         return -1
 
@@ -515,5 +519,5 @@ class ClimberGame():
         self.MAX_SPEED = self.speed_increment * 4
         self.score = 0
         self.shift_threshold = 0.75 * self.SCREEN_HEIGHT
-        event = Event(self.player.rect.top, self.player.rect.right, self.score, self.music_playing)
+        event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, False)
         self.notify(event)
