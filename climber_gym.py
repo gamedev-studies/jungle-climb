@@ -66,6 +66,8 @@ class ClimberAgent(gym.Env):
         else:
           reward -= small_reward
 
+        self.prev_player_x = event.player_x
+
     obs = [event.player_x, event.player_y, event.score, event.alive, event.has_jumped, event.gap_x, event.facing_right]
     return np.array(obs, dtype=np.float32), reward, done, info
 
