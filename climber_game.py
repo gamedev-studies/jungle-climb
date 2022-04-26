@@ -4,6 +4,7 @@ import os
 import platform
 import sys
 import json
+import numpy as np
 
 # CONSTANTS
 VERSION = '1.17'
@@ -31,12 +32,14 @@ from pygame import gfxdraw, K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4
 import pygame
 
 class Event():
-    def __init__(self, player_x, player_y, score, alive, has_jumped):
+    def __init__(self, player_x, player_y, score, alive, has_jumped, gap_x, facing_right):
         self.player_x = player_x
         self.player_y = player_y
         self.score = score
         self.alive = alive
         self.has_jumped = has_jumped
+        self.gap_x = gap_x
+        self.facing_right = facing_right
 
 class Observer():
     def __init__(self):
@@ -356,6 +359,26 @@ class ClimberGame():
             pygame.display.update(button_layout_3)
             self.clock.tick(60)
 
+    
+    def get_gap_position(self):
+        gap_x = 0
+
+        # get blocks directly above player
+        all_blocks = self.world.platform_list.sprites()
+        blocks_above = np.array([])
+        for block in all_blocks:
+            if block.rect.top > self.player.rect.top - 100:
+                blocks_above = np.append(blocks_above, block.rect.left)
+
+        size = len(blocks_above)
+        for i, block in enumerate(blocks_above):
+            if i != size - 1:
+                dif = blocks_above[i+1] - block
+                if dif > 47:
+                    gap_x = block
+                    break
+      
+        return gap_x
 
     def run_logic(self, action):
         # TODO: make background with vines
@@ -396,27 +419,28 @@ class ClimberGame():
             if event.type == KEYUP:
                 if event.key in (K_LEFT, K_a, K_RIGHT, K_d):
                     self.player.stop(pressed_keys)
-            print(self.player.rect.left, self.player.rect.top)
                     
         # react to commands from agent
+        has_jumped = False
         if action >= 0 and action < 3:
             self.player.go_right()
         elif action >= 3 and action < 6:
             self.player.go_left()
         elif action >= 6:
-            event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, True)
-            self.notify(event)
             self.player.jump(self.config['jump_sound'])
+            has_jumped = True
+        self.player.update(self.delta_time)
+        print(action, '=>', self.player.rect.left)
 
         if self.player.rect.top > self.SCREEN_HEIGHT + self.player.rect.height // 2:
             if self.music_playing:
                 pygame.mixer.Channel(0).stop()
                 self.music_playing = False
-            event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, False)
+            event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, has_jumped, self.get_gap_position(), self.player.facing_right)
             self.notify(event)
             return self.score
         self.delta_time = self.clock.tick(60) / 1000  # milliseconds -> seconds
-        event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, False)
+        event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, has_jumped, self.get_gap_position(), self.player.facing_right)
         self.notify(event)
         return -1
 
@@ -519,5 +543,5 @@ class ClimberGame():
         self.MAX_SPEED = self.speed_increment * 4
         self.score = 0
         self.shift_threshold = 0.75 * self.SCREEN_HEIGHT
-        event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, False)
+        event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, False, 0, False)
         self.notify(event)
