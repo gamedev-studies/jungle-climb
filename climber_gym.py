@@ -52,7 +52,7 @@ class ClimberAgent(gym.Env):
       print("bad: going out bounds")
       reward -= large_reward
     else:
-      if event.player_x < event.gap_x or event.player_x > event.gap_x + 100:
+      if event.player_x < event.gap_x or event.player_x > event.gap_x + 50:
         if cur_dist_gap < prev_dist_gap:
           print("good: going to gap")
           reward += large_reward
