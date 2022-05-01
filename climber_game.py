@@ -361,13 +361,13 @@ class ClimberGame():
 
     
     def get_gap_position(self):
-        gap_x = 0
+        gap_x = self.SCREEN_WIDTH/2
 
         # get blocks directly above player
         all_blocks = self.world.platform_list.sprites()
         blocks_above = np.array([])
         for block in all_blocks:
-            if block.rect.top > self.player.rect.top - 100:
+            if block.rect.top > self.player.rect.top - 80 and block.rect.top < self.player.rect.top:
                 blocks_above = np.append(blocks_above, block.rect.left)
 
         size = len(blocks_above)
@@ -375,10 +375,15 @@ class ClimberGame():
             if i != size - 1:
                 dif = blocks_above[i+1] - block
                 if dif > 47:
-                    gap_x = block
+                    # start of the block + 47 to get to actual gap
+                    gap_x = block + 47
                     break
       
         return gap_x
+
+    def draw_gap(self, gap_x):
+        marker = pygame.draw.rect(self.SCREEN, (255,0,0), pygame.Rect(gap_x, self.player.rect.top - 100, 100, 30))
+        pygame.display.update(marker)
 
     def run_logic(self, action):
         # TODO: make background with vines
@@ -422,25 +427,29 @@ class ClimberGame():
                     
         # react to commands from agent
         has_jumped = False
-        if action >= 0 and action < 3:
+        if action == 0:
             self.player.go_right()
-        elif action >= 3 and action < 6:
+        elif action == 1:
             self.player.go_left()
-        elif action >= 6:
+        elif action == 2:
             self.player.jump(self.config['jump_sound'])
             has_jumped = True
         self.player.update(self.delta_time)
         print(action, '=>', self.player.rect.left)
 
+        gap_x = self.get_gap_position() 
+        self.draw_gap(gap_x)
+        print("gap_x", gap_x)
+
         if self.player.rect.top > self.SCREEN_HEIGHT + self.player.rect.height // 2:
             if self.music_playing:
                 pygame.mixer.Channel(0).stop()
                 self.music_playing = False
-            event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, has_jumped, self.get_gap_position(), self.player.facing_right)
+            event = Event(self.player.rect.left, self.player.rect.top, self.score, self.music_playing, has_jumped, gap_x, self.player.facing_right)
             self.notify(event)
             return self.score
         self.delta_time = self.clock.tick(60) / 1000  # milliseconds -> seconds
-        event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, has_jumped, self.get_gap_position(), self.player.facing_right)
+        event = Event(self.player.rect.left, self.player.rect.top, self.score, self.music_playing, has_jumped, gap_x, self.player.facing_right)
         self.notify(event)
         return -1
 
@@ -543,5 +552,5 @@ class ClimberGame():
         self.MAX_SPEED = self.speed_increment * 4
         self.score = 0
         self.shift_threshold = 0.75 * self.SCREEN_HEIGHT
-        event = Event(self.player.rect.top, self.player.rect.left, self.score, self.music_playing, False, 0, False)
+        event = Event(self.player.rect.left, self.player.rect.top, self.score, self.music_playing, False, 0, False)
         self.notify(event)
