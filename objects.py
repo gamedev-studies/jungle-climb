@@ -268,7 +268,7 @@ class World:
 
     def create_platforms(self, pos_y):
         # Note: player can jump to a height of two platforms
-        safe_spaces = 1.75, 2, 2.5, 3, 3.5, 4
+        safe_spaces = 2, 3
         starting_pos = int(random.choice([-1, 0, 1, 1.5]) * self.tileset_new_sidelength)
         safety = starting_pos - 1
         for x in range(starting_pos, self.screen_width, int(self.tileset_new_sidelength * 0.25)):
