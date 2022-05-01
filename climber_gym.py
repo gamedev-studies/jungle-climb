@@ -36,37 +36,43 @@ class ClimberAgent(gym.Env):
     info = {'score': event.score}
 
     left_bound = 100
-    right_bound = 800
+    right_bound = 750
+    gap_padding = 10
 
     large_reward = 100
     medium_reward = 20
     small_reward = 10
     tiny_reward = 1
 
-    # reward agent for trying to "escape" the edges
-    # punish agent for staying in the edges
-    if (event.player_x < left_bound and not event.facing_right) or (event.player_x > right_bound and event.facing_right):
-      reward -= large_reward
-    elif (event.player_x < left_bound and event.facing_right) or (event.player_x > right_bound and not event.facing_right):
-      reward += medium_reward
-    elif (event.player_x > left_bound and event.facing_right) or (event.player_x < right_bound and not event.facing_right):  
-      # reward for jumping when under the gap
-      # punish lightly for not jumping
-      if event.player_x > event.gap_x and event.player_x < event.gap_x + 100:
-        if event.has_jumped:
-          reward += medium_reward
-        else:
-          reward -= tiny_reward
-      else:
-        # if not under the gap
-        # reward for going towards the gap
-        # punish for going away from the gap
-        if abs(event.gap_x - event.player_x) < abs(event.gap_x - self.prev_player_x):
-          reward += small_reward
-        else:
-          reward -= small_reward
+    cur_dist_gap = abs(event.gap_x - event.player_x)
+    prev_dist_gap = abs(event.gap_x - self.prev_player_x)
+    print("cur_dist_gap vs. prev_dist_gap", cur_dist_gap, prev_dist_gap)
 
-        self.prev_player_x = event.player_x
+    if event.player_x < left_bound or event.player_x > right_bound:
+      print("bad: going out bounds")
+      reward -= large_reward
+    else:
+      if event.player_x < event.gap_x or event.player_x > event.gap_x + 100:
+        if cur_dist_gap < prev_dist_gap:
+          print("good: going to gap")
+          reward += large_reward
+        else:
+          print("bad: going away from gap")
+          reward -= medium_reward
+      else:
+        print("good: under the gap")
+        reward += tiny_reward
+        if event.player_y < self.prev_player_y:
+          reward += large_reward
+          print("good: going up")
+        elif event.player_y >= self.prev_player_y:
+          reward -= small_reward
+          print("bad: going down or staying at the same level")
+
+    self.prev_player_x = event.player_x
+    self.prev_player_y = event.player_y
+    self.last_action = action
+    print(self.prev_player_x, event.player_x)
 
     obs = [event.player_x, event.player_y, event.score, event.alive, event.has_jumped, event.gap_x, event.facing_right]
     return np.array(obs, dtype=np.float32), reward, done, info

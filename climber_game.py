@@ -362,18 +362,21 @@ class ClimberGame():
     
     def get_gap_position(self):
         gap_x = self.SCREEN_WIDTH/2
+        height_above = 80
 
         # get blocks directly above player
         all_blocks = self.world.platform_list.sprites()
-        blocks_above = np.array([])
-        for block in all_blocks:
-            if block.rect.top > self.player.rect.top - 80 and block.rect.top < self.player.rect.top:
-                blocks_above = np.append(blocks_above, block.rect.left)
+        
+        if self.player.on_ground or len(self.blocks_above) == 0:
+            self.blocks_above = np.array([])
+            for block in all_blocks:
+                if block.rect.top > self.player.rect.top - height_above and block.rect.top < self.player.rect.top:
+                    self.blocks_above = np.append(self.blocks_above, block.rect.left)
 
-        size = len(blocks_above)
-        for i, block in enumerate(blocks_above):
+        size = len(self.blocks_above)
+        for i, block in enumerate(self.blocks_above):
             if i != size - 1:
-                dif = blocks_above[i+1] - block
+                dif = self.blocks_above[i+1] - block
                 if dif > 47:
                     # start of the block + 47 to get to actual gap
                     gap_x = block + 47
@@ -489,6 +492,7 @@ class ClimberGame():
                 'high_scores': [0, 0, 0, 0, 0, 0, 0, 0, 0]}
         self.music_playing = False
         self.delta_time = 0
+        self.blocks_above = np.array([])
 
         try:
             with open(CONFIG_FILE) as f:

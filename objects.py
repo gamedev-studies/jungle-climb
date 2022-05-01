@@ -120,6 +120,9 @@ class Player(pygame.sprite.Sprite):
             self.reset_change_animation()
         else: self.change_animation -= 1
 
+    def is_on_ground(self):
+        return self.on_ground
+
     def gravity(self):
         self.on_ground = False
         for platform in pygame.sprite.spritecollide(self, self.world.platform_list, False):
@@ -268,7 +271,7 @@ class World:
 
     def create_platforms(self, pos_y):
         # Note: player can jump to a height of two platforms
-        safe_spaces = 2, 3
+        safe_spaces = 2, 2
         starting_pos = int(random.choice([-1, 0, 1, 1.5]) * self.tileset_new_sidelength)
         safety = starting_pos - 1
         for x in range(starting_pos, self.screen_width, int(self.tileset_new_sidelength * 0.25)):
