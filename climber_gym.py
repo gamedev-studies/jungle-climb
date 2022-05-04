@@ -36,7 +36,7 @@ class ClimberAgent(gym.Env):
     reward = 0
     event = self.observer.event
     done = (event.alive == False)
-    info = {'score': event.score}
+    info = {}
 
     left_bound = 0
     right_bound = 750
@@ -47,43 +47,49 @@ class ClimberAgent(gym.Env):
     small_reward = 10
     tiny_reward = 1
 
-    cur_dist_gap = abs(event.gap_x - event.player_x)
-    prev_dist_gap = abs(event.gap_x - self.prev_player_x)
+    cur_dist_gap1 = abs(event.gap_x1 - event.player_x)
+    cur_dist_gap2 = event.gap_x2 - event.player_x 
+    prev_dist_gap1 = abs(event.gap_x1 - self.prev_player_x)
+    log_dist = math.log10(1 if cur_dist_gap1 <= 0 else cur_dist_gap1)
     #print("cur_dist_gap vs. prev_dist_gap", cur_dist_gap, prev_dist_gap)
-
+    print("cur_dist_gap2", cur_dist_gap2)
+    print("event.facing_side", event.facing_side)
     if event.player_x < left_bound or event.player_x > right_bound:
       #print("bad: going out bounds")
       reward -= tiny_reward * abs(event.player_x - 400)
     else:
-      if event.player_x < event.gap_x or event.player_x > event.gap_x + 50:
-        if cur_dist_gap < prev_dist_gap:
+      if event.player_x < event.gap_x1 or event.player_x > event.gap_x1 + 50:
+        if cur_dist_gap1 < prev_dist_gap1:
           #print("good: going to gap")
-          reward += large_reward - math.log10(cur_dist_gap)
+          reward += large_reward - log_dist
         else:
           #print("bad: going away from gap")
-          reward -= medium_reward + math.log10(cur_dist_gap)
+          reward -= medium_reward + log_dist
       else:
         if not event.on_ground:
           reward += medium_reward
-        else:
-          reward -= tiny_reward
 
-      if not event.on_ground and self.prev_on_ground: # if player went from ground to air
-        #print("GROUND: Player just jumped!")
-        self.player_y_before_jump = event.player_y
-      elif not event.on_ground and not self.prev_on_ground: # if player is on air
-        #print("GROUND: Player is on air!")
-        pass
-      elif event.on_ground and not self.prev_on_ground: # if player came from air to ground
-        #print("GROUND: Player is back on the ground!")
-        #print(event.player_y, self.player_y_before_jump)
-        if event.player_y < self.player_y_before_jump and abs(event.player_y - self.player_y_before_jump) > 100: # if player is one platform up
-          #print("GROUND: WENT UP! ========================")
-          reward += large_reward
-        self.player_y_before_jump = event.player_y
-      else: # if player stayed on the ground
-        pass
-
+        if not event.on_ground and self.prev_on_ground: # if player went from ground to air
+          #print("JUMP: Player just jumped!")
+          self.player_y_before_jump = event.player_y
+        elif not event.on_ground and not self.prev_on_ground: # if player is on air
+          #print("JUMP: Player is on air!")
+          if cur_dist_gap2 == 0:
+            reward += tiny_reward 
+          elif event.facing_side == 0 and cur_dist_gap2 < 0:
+            reward += large_reward
+          elif event.facing_side == 1 and cur_dist_gap2 > 0:
+            reward += large_reward 
+          else:
+            reward -= medium_reward 
+        elif event.on_ground and not self.prev_on_ground: # if player came from air to ground
+          #print("JUMP: Player is back on the ground!")
+          if event.player_y < self.player_y_before_jump and abs(event.player_y - self.player_y_before_jump) > 100: # if player is one platform up
+            #print("JUMP: WENT UP!")
+            reward += large_reward
+          self.player_y_before_jump = event.player_y
+        else: # if player stayed on the ground
+          pass
 
     self.prev_on_ground = event.on_ground
     self.prev_player_x = event.player_x
@@ -91,15 +97,13 @@ class ClimberAgent(gym.Env):
     self.last_action = action
     #print(self.prev_player_x, event.player_x)
     print(reward)
-    print(reward)
-    print(reward)
 
-    obs = [event.player_x, event.player_y, event.score, event.alive, event.has_jumped, event.gap_x, event.facing_right]
+    obs = [event.player_x, event.player_y, event.gap_x1, event.gap_x2, event.alive, event.on_ground, event.facing_side]
     return np.array(obs, dtype=np.float32), reward, done, info
 
   def reset(self):
     self.game.main()
-    return np.array([0, 0, 0, True, False, 0, False], dtype=np.float32)
+    return np.array([0, 0, 400, 400, True, True, 1], dtype=np.float32)
 
   def render(self, mode='human'):
     self.game.render()

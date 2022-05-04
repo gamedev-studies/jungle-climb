@@ -4,7 +4,7 @@ from stable_baselines3 import PPO
 env = ClimberAgent()
 results = []
 model = PPO('MlpPolicy', env, verbose=1, tensorboard_log='tensorboard')
-model.learn(total_timesteps=100000) 
+model.learn(total_timesteps=25000) 
 obs = env.reset()
 model.save("models/model1")
 for i in range(0, 10):

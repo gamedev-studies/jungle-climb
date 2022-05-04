@@ -123,6 +123,9 @@ class Player(pygame.sprite.Sprite):
     def is_on_ground(self):
         return self.on_ground
 
+    def get_facing_side(self):
+        return 1 if self.facing_right else 0
+
     def gravity(self):
         self.on_ground = False
         for platform in pygame.sprite.spritecollide(self, self.world.platform_list, False):
@@ -243,6 +246,7 @@ class Platform(pygame.sprite.Sprite):
 
 class World:
     P_PLATFORM = 0.8  # probability of platforms
+    previous_platform_seed = 0
     difficulty = 1
 
     def __init__(self):
@@ -270,22 +274,21 @@ class World:
         self.player = player
 
     def create_platforms(self, pos_y):
-        # Note: player can jump to a height of two platforms
-        safe_spaces = 2, 2
-        starting_pos = int(random.choice([-1, 0, 1, 1.5]) * self.tileset_new_sidelength)
-        safety = starting_pos - 1
-        for x in range(starting_pos, self.screen_width, int(self.tileset_new_sidelength * 0.25)):
-            if x > safety:
-                max_tiles = max(((self.screen_width - x) // self.tileset_new_sidelength), 2)
-                num_of_tiles = min(random.randint(3, 10), max_tiles)
-                safety = x + num_of_tiles * self.tileset_new_sidelength + random.choice(
-                    safe_spaces) * self.tileset_new_sidelength
-                for tile_number in range(num_of_tiles):
-                    if tile_number == 0: platform_type = 'left'
-                    elif tile_number == num_of_tiles - 1:  platform_type = 'right'
-                    else: platform_type = 'centre'
-                    platform = Platform(x + tile_number * self.tileset_new_sidelength, pos_y, platform_type)
-                    self.platform_list.add(platform)
+        num_platforms = max(((self.screen_width) // self.tileset_new_sidelength), 2)
+        limit_for_gap = num_platforms - 5
+        gap_pos = random.randint(1, limit_for_gap)
+        if gap_pos == self.previous_platform_seed:
+            if gap_pos > 5:
+                gap_pos -= 2
+            else:
+                gap_pos += 2
+
+        for platform in range(num_platforms):
+            if platform == gap_pos or platform == gap_pos + 1:
+                continue
+            platform = Platform(platform * 47, pos_y, 'centre')
+            self.platform_list.add(platform)
+        self.previous_platform_seed = gap_pos
 
     def shift_world(self, shift_y=0, shift_x=0):
         """For automated scrolling"""

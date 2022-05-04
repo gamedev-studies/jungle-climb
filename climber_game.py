@@ -32,15 +32,14 @@ from pygame import gfxdraw, K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4
 import pygame
 
 class Event():
-    def __init__(self, player_x, player_y, score, alive, has_jumped, gap_x, facing_right, on_ground):
+    def __init__(self, player_x, player_y, gap_x1, gap_x2, alive, on_ground, facing_side):
         self.player_x = player_x
         self.player_y = player_y
-        self.score = score
+        self.gap_x1 = gap_x1
+        self.gap_x2 = gap_x2
         self.alive = alive
-        self.has_jumped = has_jumped
-        self.gap_x = gap_x
-        self.facing_right = facing_right
         self.on_ground = on_ground
+        self.facing_side = facing_side
 
 class Observer():
     def __init__(self):
@@ -362,31 +361,43 @@ class ClimberGame():
 
     
     def get_gap_position(self):
-        gap_x = self.SCREEN_WIDTH/2
+        gap_x1 = self.SCREEN_WIDTH/2
+        gap_x2 = self.SCREEN_WIDTH/2
         height_above = 80
 
         # get blocks directly above player
         all_blocks = self.world.platform_list.sprites()
         
-        if self.player.on_ground or len(self.blocks_above) == 0:
-            self.blocks_above = np.array([])
+        if self.player.on_ground or len(self.blocks_above_1) == 0 or len(self.blocks_above_2) == 0:
+            self.blocks_above_1 = np.array([])
+            self.blocks_above_2 = np.array([])
             for block in all_blocks:
                 if block.rect.top > self.player.rect.top - height_above and block.rect.top < self.player.rect.top:
-                    self.blocks_above = np.append(self.blocks_above, block.rect.left)
+                    self.blocks_above_1 = np.append(self.blocks_above_1, block.rect.left)
+                if block.rect.top > self.player.rect.top - (height_above * 3) and block.rect.top < self.player.rect.top - height_above:
+                    self.blocks_above_2 = np.append(self.blocks_above_2, block.rect.left)
 
-        size = len(self.blocks_above)
-        for i, block in enumerate(self.blocks_above):
+        size = len(self.blocks_above_1)
+        for i, block in enumerate(self.blocks_above_1):
             if i != size - 1:
-                dif = self.blocks_above[i+1] - block
+                dif = self.blocks_above_1[i+1] - block
                 if dif > 47:
                     # start of the block + 47 to get to actual gap
-                    gap_x = block + 47
+                    gap_x1 = block + 47
+                            
+        size = len(self.blocks_above_2)
+        for i, block in enumerate(self.blocks_above_2):
+            if i != size - 1:
+                dif = self.blocks_above_2[i+1] - block
+                if dif > 47:
+                    # start of the block + 47 to get to actual gap
+                    gap_x2 = block + 47
                     break
       
-        return gap_x
+        return gap_x1, gap_x2
 
-    def draw_gap(self, gap_x):
-        marker = pygame.draw.rect(self.SCREEN, (255,0,0), pygame.Rect(gap_x, self.player.rect.top - 100, 100, 30))
+    def draw_gap(self, gap_x, y_dist):
+        marker = pygame.draw.rect(self.SCREEN, (255,0,0), pygame.Rect(gap_x, self.player.rect.top - y_dist, 100, 30))
         pygame.display.update(marker)
 
     def run_logic(self, action):
@@ -439,21 +450,22 @@ class ClimberGame():
             self.player.jump(self.config['jump_sound'])
             has_jumped = True
         self.player.update(self.delta_time)
-        print(action, '=>', self.player.rect.left)
+        #print(action, '=>', self.player.rect.left)
 
-        gap_x = self.get_gap_position() 
-        self.draw_gap(gap_x)
-        print("gap_x", gap_x)
+        gap_x1, gap_x2 = self.get_gap_position() 
+        self.draw_gap(gap_x1, 100)
+        self.draw_gap(gap_x2, 200)
+        #print("gaps 1 and 2: ", gap_x1, gap_x2)
 
         if self.player.rect.top > self.SCREEN_HEIGHT + self.player.rect.height // 2:
             if self.music_playing:
                 pygame.mixer.Channel(0).stop()
                 self.music_playing = False
-            event = Event(self.player.rect.left, self.player.rect.top, self.score, self.music_playing, has_jumped, gap_x, self.player.facing_right, self.player.is_on_ground())
+            event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side())
             self.notify(event)
             return self.score
         self.delta_time = self.clock.tick(60) / 1000  # milliseconds -> seconds
-        event = Event(self.player.rect.left, self.player.rect.top, self.score, self.music_playing, has_jumped, gap_x, self.player.facing_right, self.player.is_on_ground())
+        event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side())
         self.notify(event)
         return -1
 
@@ -493,7 +505,7 @@ class ClimberGame():
                 'high_scores': [0, 0, 0, 0, 0, 0, 0, 0, 0]}
         self.music_playing = False
         self.delta_time = 0
-        self.blocks_above = np.array([])
+        self.blocks_above_1 = np.array([])
 
         try:
             with open(CONFIG_FILE) as f:
@@ -557,5 +569,6 @@ class ClimberGame():
         self.MAX_SPEED = self.speed_increment * 4
         self.score = 0
         self.shift_threshold = 0.75 * self.SCREEN_HEIGHT
-        event = Event(self.player.rect.left, self.player.rect.top, self.score, self.music_playing, False, 0, False, True)
+        gap_x1, gap_x2 = self.get_gap_position()
+        event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2, self.music_playing, self.player.is_on_ground(), self.player.get_facing_side())
         self.notify(event)
