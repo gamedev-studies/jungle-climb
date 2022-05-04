@@ -283,11 +283,22 @@ class World:
             else:
                 gap_pos += 2
 
+        i = 0
+        print(pos_y)
         for platform in range(num_platforms):
-            if platform == gap_pos or platform == gap_pos + 1:
-                continue
-            platform = Platform(platform * 47, pos_y, 'centre')
-            self.platform_list.add(platform)
+            if pos_y == 412:
+                if (i == 5 or i == 6):
+                    i += 1
+                    continue
+                else:
+                    platform = Platform(platform * 47, pos_y, 'centre')
+                    self.platform_list.add(platform)
+                i += 1
+            else:
+                if platform == gap_pos or platform == gap_pos + 1:
+                    continue
+                platform = Platform(platform * 47, pos_y, 'centre')
+                self.platform_list.add(platform)
         self.previous_platform_seed = gap_pos
 
     def shift_world(self, shift_y=0, shift_x=0):

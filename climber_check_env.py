@@ -9,5 +9,5 @@ for episode in range(10):
         obs, reward, done, info = env.step(random_action)
         env.render()
         if done:
-            print("Game over! Score: %s" % info['score'])
+            print("Game over!")
             break
