@@ -246,7 +246,7 @@ class Platform(pygame.sprite.Sprite):
 
 class World:
     P_PLATFORM = 0.8  # probability of platforms
-    previous_platform_seed = 0
+    previous_platform_seed = [0, 0]
     difficulty = 1
 
     def __init__(self):
@@ -276,7 +276,7 @@ class World:
     def create_platforms(self, pos_y):
         num_platforms = max(((self.screen_width) // self.tileset_new_sidelength), 2)
         limit_for_gap = num_platforms - 5
-        gap_pos = random.randint(1, limit_for_gap)
+        gap_pos = random.randint(2, limit_for_gap)
         if gap_pos == self.previous_platform_seed:
             if gap_pos > 5:
                 gap_pos -= 2
@@ -287,19 +287,29 @@ class World:
         print(pos_y)
         for platform in range(num_platforms):
             if pos_y == 412:
-                if (i == 5 or i == 6):
+                if (i in [5, 6]):
                     i += 1
                     continue
                 else:
                     platform = Platform(platform * 47, pos_y, 'centre')
                     self.platform_list.add(platform)
                 i += 1
+                self.previous_platform_seed = 5
             else:
                 if platform == gap_pos or platform == gap_pos + 1:
                     continue
                 platform = Platform(platform * 47, pos_y, 'centre')
                 self.platform_list.add(platform)
-        self.previous_platform_seed = gap_pos
+                self.previous_platform_seed = gap_pos
+
+        # draw wall
+        pos_bound = 0
+        for i in range(15):
+            platform = Platform(0, pos_bound, 'centre')
+            self.platform_list.add(platform)
+            platform = Platform(750, pos_bound, 'centre')
+            self.platform_list.add(platform)
+            pos_bound += 47
 
     def shift_world(self, shift_y=0, shift_x=0):
         """For automated scrolling"""

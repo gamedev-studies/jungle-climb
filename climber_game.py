@@ -33,7 +33,7 @@ from pygame import gfxdraw, K_w, K_a, K_d, K_UP, K_LEFT, K_RIGHT, K_ESCAPE, K_F4
 import pygame
 
 class Event():
-    def __init__(self, player_x, player_y, gap_x1, gap_x2, alive, on_ground, facing_side, score):
+    def __init__(self, player_x, player_y, gap_x1, gap_x2, alive, on_ground, facing_side, score, time_elapsed):
         self.player_x = player_x
         self.player_y = player_y
         self.gap_x1 = gap_x1
@@ -42,6 +42,7 @@ class Event():
         self.on_ground = on_ground
         self.facing_side = facing_side
         self.score = score
+        self.time_elapsed = time_elapsed
 
 class Observer():
     def __init__(self):
@@ -374,6 +375,8 @@ class ClimberGame():
             self.blocks_above_1 = np.array([])
             self.blocks_above_2 = np.array([])
             for block in all_blocks:
+                if block.rect.left == 0 or block.rect.left == 750:
+                    continue
                 if block.rect.top > self.player.rect.top - height_above and block.rect.top < self.player.rect.top:
                     self.blocks_above_1 = np.append(self.blocks_above_1, block.rect.left)
                 if block.rect.top > self.player.rect.top - (height_above * 3) and block.rect.top < self.player.rect.top - height_above:
@@ -459,27 +462,20 @@ class ClimberGame():
         self.draw_gap(gap_x2, 200)
         #print("gaps 1 and 2: ", gap_x1, gap_x2)
 
+        self.current_time = datetime.datetime.now()
+        time_elapsed = (self.current_time - self.time_game_started).total_seconds()
+
         if self.player.rect.top > self.SCREEN_HEIGHT + self.player.rect.height // 2:
             if self.music_playing:
                 pygame.mixer.Channel(0).stop()
                 self.music_playing = False
-            event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score)
+            event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, time_elapsed)
             self.notify(event)
             return self.score
         self.delta_time = self.clock.tick(60) / 1000  # milliseconds -> seconds
-        event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score)
+        event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, time_elapsed)
         self.notify(event)
 
-        
-        #self.current_time = datetime.datetime.now()
-        #dif = self.current_time - self.time_game_started
-        #if dif.total_seconds() > 1 and self.score - self.prev_score == 0:
-        #    self.music_playing = False
-        #    event = Event(self.score, self.music_playing)
-        #    self.notify(event)
-        #    return self.score
-
-        #self.prev_score = self.score
         return -1
 
     def render(self):
@@ -585,5 +581,5 @@ class ClimberGame():
         self.time_game_started = datetime.datetime.now()
         self.shift_threshold = 0.75 * self.SCREEN_HEIGHT
         gap_x1, gap_x2 = self.get_gap_position()
-        event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2, self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score)
+        event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2, self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, 0)
         self.notify(event)
