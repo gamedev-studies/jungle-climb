@@ -463,18 +463,19 @@ class ClimberGame():
         #print("gaps 1 and 2: ", gap_x1, gap_x2)
 
         self.current_time = datetime.datetime.now()
-        time_elapsed = (self.current_time - self.time_game_started).total_seconds()
+        self.time_elapsed = (self.current_time - self.time_game_started).total_seconds()
 
         if self.player.rect.top > self.SCREEN_HEIGHT + self.player.rect.height // 2:
             if self.music_playing:
                 pygame.mixer.Channel(0).stop()
                 self.music_playing = False
-            event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, time_elapsed)
+            event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, self.time_elapsed)
             self.notify(event)
             return self.score
         self.delta_time = self.clock.tick(60) / 1000  # milliseconds -> seconds
-        event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, time_elapsed)
+        event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, self.time_elapsed)
         self.notify(event)
+        self.render()
 
         return -1
 
@@ -493,7 +494,7 @@ class ClimberGame():
             self.SCREEN.fill(BACKGROUND)
             self.player.draw(self.SCREEN)
             self.world.draw(self.SCREEN)  # some grass appears in front of player
-            if self.player.rect.top < self.shift_threshold: self.world_shift_speed = self.speed_increment
+            if self.player.rect.top < self.shift_threshold - 200: self.world_shift_speed = self.speed_increment
         if self.DEBUG:
             custom_text = f'Platform Sprites: {len(self.world.platform_list)}'
             custom_bg, custom_rect = self.create_hud_text(custom_text, RED)
@@ -579,7 +580,8 @@ class ClimberGame():
         self.score = 0
         self.prev_score = 0
         self.time_game_started = datetime.datetime.now()
+        self.time_elapsed = 0
         self.shift_threshold = 0.75 * self.SCREEN_HEIGHT
         gap_x1, gap_x2 = self.get_gap_position()
-        event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2, self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, 0)
+        event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2, self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, self.time_elapsed)
         self.notify(event)

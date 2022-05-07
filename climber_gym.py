@@ -18,7 +18,7 @@ class ClimberAgent(gym.Env):
 
   def __init__(self):
     super(ClimberAgent, self).__init__()
-    number_of_actions = 4
+    number_of_actions = 5
     number_of_observations = 9
     self.action_space = spaces.Discrete(number_of_actions)
     self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(number_of_observations,), dtype=np.float32)
@@ -30,10 +30,10 @@ class ClimberAgent(gym.Env):
     self.prev_score = 0
     self.player_y_before_jump = 0
     self.player_climbed_once = False
-    self.last_actions = []
+    self.last_action = 0
     self.game.attach(self.observer)
 
-  def get_negative_reward(self, event):
+  def get_initial_state_rew(self, event):
     #return 0
     return event.time_elapsed * 5 if event.score == 0 else 0
 
@@ -61,18 +61,27 @@ class ClimberAgent(gym.Env):
       else:
         #print("bad: going away from gap")
         reward -= small_reward 
-        reward -= self.get_negative_reward(event)
+        reward -= self.get_initial_state_rew(event)
     else: #print("good: under the gap")
       if event.facing_side == 0 and cur_dist_gap2 < 0:
         #print("good: facing left, 2nd gap left")
         reward += large_reward
+        if event.player_y < self.prev_player_y:
+          reward += large_reward + self.get_initial_state_rew(event)
       elif event.facing_side == 1 and cur_dist_gap2 > 0:
         #print("good: facing right, 2nd gap right")
         reward += large_reward
+        if event.player_y < self.prev_player_y:
+          reward += large_reward + self.get_initial_state_rew(event)
       else:
         #print("bad: under the 1st gap, but facing away from the 2nd gap")
         reward -= large_reward
+        reward -= self.get_initial_state_rew(event)
 
+    if event.score == 0 and action == self.last_action:
+      reward -= large_reward
+
+    self.last_action = action
     self.prev_on_ground = event.on_ground
     self.prev_player_x = event.player_x
     self.prev_player_y = event.player_y
