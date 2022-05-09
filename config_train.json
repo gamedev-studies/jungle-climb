@@ -1,0 +1,30 @@
+{
+    "session":"human",
+    "skill":"novice",
+    "time":180,
+    "warmup":false,
+    "run":[1,2],
+    "tests":
+    [
+        {
+            "id":"build-1",
+            "train":false,
+            "shift_speed":2,
+            "max_gaps":1
+        },
+        {
+            "id":"build-2",
+            "train":false,
+            "shift_speed":2,
+            "max_gaps":1
+        },
+        {
+            "id":"build-3",
+            "train":false,
+            "shift_speed":1,
+            "max_gaps":2
+        }
+    ]
+    
+        
+}

@@ -1,0 +1,8 @@
+{
+    "DEBUG": false, 
+    "jump_sound": true, 
+    "background_music": true, 
+    "show_fps": false, 
+    "show_score": true,
+    "high_scores": [0, 0, 0, 0, 0, 0, 0, 0, 0]
+}

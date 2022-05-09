@@ -24,7 +24,8 @@ WORLD_SHIFT_SPEED_PERCENT = 0.00135
 FONT_BOLD = 'assets/fonts/OpenSans-SemiBold.ttf'
 FONT_REG = 'assets/fonts/OpenSans-Regular.ttf'
 FONT_LIGHT = 'assets/fonts/OpenSans-Light.ttf'
-CONFIG_FILE = 'config.json'
+GAME_CONFIG_FILE = 'config_game.json'
+TRAIN_CONFIG_FILE = 'config_train.json'
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'True'
 
@@ -66,9 +67,20 @@ class ClimberGame():
         for observer in self._observers:
             observer.update(event)
 
+    def load_configs(self):
+        game_config = {}
+        train_config = {}
+        with open(GAME_CONFIG_FILE, 'r') as fp:
+            game_config = json.load(fp)
+
+        with open(TRAIN_CONFIG_FILE, 'r') as fp:
+            train_config = json.load(fp)
+
+        return game_config, train_config
+
     def save_config(self):
-        with open(CONFIG_FILE, 'w') as fp:
-            json.dump(self.config, fp, indent=4)
+        # not used in our project
+        return 1
 
     def text_objects(self, text, font, colour=BLACK):
         text_surface = font.render(text, True, colour)
@@ -90,7 +102,7 @@ class ClimberGame():
         :param user_score: the score of the user
         :return: boolean indicating whether the score was a top 10 score
         """
-        scores = self.config['high_scores']
+        scores = self.game_config['high_scores']
         placement = None
         for i, score in enumerate(scores):
             if user_score > score:
@@ -153,7 +165,7 @@ class ClimberGame():
         text_surf, text_rect = self.text_objects('High Scores', self.MENU_TEXT)
         text_rect.center = ((self.SCREEN_WIDTH // 2), (self.SCREEN_HEIGHT // 6))
         self.SCREEN.blit(text_surf, text_rect)
-        for i, score in enumerate(self.config['high_scores']):
+        for i, score in enumerate(self.game_config['high_scores']):
             text_surf, text_rect = self.text_objects(str(score), self.LARGE_TEXT)
             text_rect.center = (self.SCREEN_WIDTH // 2, int(self.SCREEN_HEIGHT * (i / 1.5 + 3) // 11))
             self.SCREEN.blit(text_surf, text_rect)
@@ -246,19 +258,19 @@ class ClimberGame():
                 if event.type == QUIT or alt_f4: sys.exit()
                 elif event.type == KEYDOWN and event.key == K_ESCAPE: return
                 elif event.type == MOUSEBUTTONDOWN: click = True
-            if self.toggle_btn('Background Music', *self.button_layout_4[0], click, enabled=self.config['background_music'],
+            if self.toggle_btn('Background Music', *self.button_layout_4[0], click, enabled=self.game_config['background_music'],
                         draw_toggle=draw_bg_toggle, blit_text=first_run):
-                self.config['background_music'] = not self.config['background_music']
+                self.game_config['background_music'] = not self.game_config['background_music']
                 self.save_config()
                 draw_bg_toggle = True
-            elif self.toggle_btn('Jump Sound', *self.button_layout_4[1], click, enabled=self.config['jump_sound'],
+            elif self.toggle_btn('Jump Sound', *self.button_layout_4[1], click, enabled=self.game_config['jump_sound'],
                             draw_toggle=draw_jump_toggle, blit_text=first_run):
-                self.config['jump_sound'] = not self.config['jump_sound']
+                self.game_config['jump_sound'] = not self.game_config['jump_sound']
                 self.save_config()
                 draw_jump_toggle = True
-            elif self.toggle_btn('Show FPS', *self.button_layout_4[2], click, enabled=self.config['show_fps'],
+            elif self.toggle_btn('Show FPS', *self.button_layout_4[2], click, enabled=self.game_config['show_fps'],
                             draw_toggle=draw_show_fps, blit_text=first_run):
-                self.config['show_fps'] = not self.config['show_fps']
+                self.game_config['show_fps'] = not self.game_config['show_fps']
                 self.save_config()
                 draw_show_fps = True
             elif self.button('B A C K', *self.button_layout_4[3], click): return
@@ -411,7 +423,7 @@ class ClimberGame():
             if self.music_playing:
                 pygame.mixer.Channel(0).pause()
                 self.music_playing = False
-            if self.config['background_music']:
+            if self.game_config['background_music']:
                 if pygame.mixer.Channel(0).get_busy():
                     pygame.mixer.Channel(0).unpause()
                 else:
@@ -428,16 +440,16 @@ class ClimberGame():
                 left_key = event.key == K_LEFT and not pressed_keys[K_a] or event.key == K_a and not pressed_keys[K_LEFT]
                 if right_key: self.player.go_right()
                 elif left_key: self.player.go_left()
-                elif event.key in (K_UP, K_w, K_SPACE): self.player.jump(self.config['jump_sound'])
+                elif event.key in (K_UP, K_w, K_SPACE): self.player.jump(self.game_config['jump_sound'])
                 if event.key == K_ESCAPE and not pressed_keys[K_p] or event.key == K_p and not pressed_keys[K_ESCAPE]:
                     pygame.mixer.Channel(0).pause()
                     self.music_playing = False
                     if self.pause_menu(self.player) == 'Main Menu': return 'Main Menu'
                     else: self.hide_mouse()
-                    if self.config['background_music']:
+                    if self.game_config['background_music']:
                         pygame.mixer.Channel(0).unpause()
                         self.music_playing = True
-                elif self.DEBUG:
+                elif self.game_config['DEBUG']:
                     if event.key == pygame.K_EQUALS: self.world.shift_world(shift_x=1)
                     elif event.key == pygame.K_MINUS: self.world.shift_world(shift_x=-1)
                     elif event.key == K_TAB: print(self.player.rect)
@@ -452,7 +464,7 @@ class ClimberGame():
         elif action == 1:
             self.player.go_left()
         elif action == 2:
-            self.player.jump(self.config['jump_sound'])
+            self.player.jump(self.game_config['jump_sound'])
             has_jumped = True
         self.player.update(self.delta_time)
         #print(action, '=>', self.player.rect.left)
@@ -495,38 +507,37 @@ class ClimberGame():
             self.player.draw(self.SCREEN)
             self.world.draw(self.SCREEN)  # some grass appears in front of player
             if self.player.rect.top < self.shift_threshold - 200: self.world_shift_speed = self.speed_increment
-        if self.DEBUG:
+        if self.game_config['DEBUG']:
             custom_text = f'Platform Sprites: {len(self.world.platform_list)}'
             custom_bg, custom_rect = self.create_hud_text(custom_text, RED)
             custom_rect.topleft = 50, -5
             self.SCREEN.blit(custom_bg, custom_rect)
-        if self.config['show_fps']:
+        if self.game_config['show_fps']:
             fps_bg, fps_rect = self.create_hud_text(str(round(self.clock.get_fps())), YELLOW)
             fps_rect.topleft = -2, -5
             self.SCREEN.blit(fps_bg, fps_rect)
-        if self.config['show_score']:
+        if self.game_config['show_score']:
             score_bg, score_rect = self.create_hud_text(str(self.score), WHITE)
             score_rect.topright = self.SCORE_ANCHOR
             self.SCREEN.blit(score_bg, score_rect)
         pygame.display.update()
     
     def main(self):
-        self.config = {'DEBUG': False, 'jump_sound': True, 'background_music': True, 'show_fps': False, 'show_score': True,
+        self.game_config = {'DEBUG': False, 'jump_sound': True, 'background_music': True, 'show_fps': False, 'show_score': True,
                 'high_scores': [0, 0, 0, 0, 0, 0, 0, 0, 0]}
+        self.train_config = {}
         self.music_playing = False
         self.delta_time = 0
         self.blocks_above_1 = np.array([])
 
-        try:
-            with open(CONFIG_FILE) as f:
-                _config = json.load(f)
-        except FileNotFoundError: _config = {}
-        save_file = False
-        for k, v in self.config.items():
-            try: self.config[k] = _config[k]
-            except KeyError: save_file = True
-        if save_file: self.save_config()
-        self.DEBUG = self.config['DEBUG']
+        # original config file added by the dev
+        # since it is not so important for agent training, I have hardcoded it
+        game_config, train_config = self.load_configs()
+
+        for k, v in self.game_config.items():
+            self.game_config[k] = game_config[k]
+
+        self.train_config = train_config
 
         # Initialization
         if platform.system() == 'Windows':
@@ -566,7 +577,7 @@ class ClimberGame():
         from objects import World
         from objects import Player
         self.hide_mouse()
-        if not self.music_playing and self.config['background_music']:
+        if not self.music_playing and self.game_config['background_music']:
             pygame.mixer.Channel(0).play(self.MUSIC_SOUND, loops=-1)
             pygame.mixer.Channel(0).set_volume(0)
             self.music_playing = True
@@ -576,7 +587,7 @@ class ClimberGame():
         self.world.set_player(self.player)
         self.world_shift_speed = 0
         self.speed_increment = round(WORLD_SHIFT_SPEED_PERCENT * self.SCREEN_HEIGHT)
-        self.MAX_SPEED = self.speed_increment * 4
+        self.MAX_SPEED = self.speed_increment * 2
         self.score = 0
         self.prev_score = 0
         self.time_game_started = datetime.datetime.now()
