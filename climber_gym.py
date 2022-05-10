@@ -16,13 +16,13 @@ class ClimberAgent(gym.Env):
   RIGHT = 1
   JUMP = 2
 
-  def __init__(self):
+  def __init__(self, shift_speed = 1, max_gaps = 1, buildno = ''):
     super(ClimberAgent, self).__init__()
     number_of_actions = 5
     number_of_observations = 9
     self.action_space = spaces.Discrete(number_of_actions)
     self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(number_of_observations,), dtype=np.float32)
-    self.game = ClimberGame()
+    self.game = ClimberGame(shift_speed = shift_speed, max_gaps = max_gaps, buildno = buildno)
     self.observer = Observer()
     self.prev_player_x = 0
     self.prev_player_y = 0
@@ -92,7 +92,7 @@ class ClimberAgent(gym.Env):
       reward -= large_reward
 
     obs = [event.player_x, event.player_y, event.gap_x1, event.gap_x2, event.alive, event.on_ground, event.facing_side, event.score, event.time_elapsed]
-    print(obs, "reward =", reward)
+    #print(obs, "reward =", reward)
     return np.array(obs, dtype=np.float32), reward, done, info
 
   def reset(self):

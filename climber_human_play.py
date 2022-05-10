@@ -1,6 +1,6 @@
 from climber_game import ClimberGame
 
-cg = ClimberGame()
+cg = ClimberGame(max_gaps=1)
 ClimberGame.main(cg)
 
 while True:
