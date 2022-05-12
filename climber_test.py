@@ -51,7 +51,7 @@ for run in data["run"]:
             
             # save the results only after warming up
             if not data["warmup"]:
-                _save_results([str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')), data['time'], run, data['session'], data['skill'], test['shift_speed'], test['max_gaps'], best_score])
+                _save_results([str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')), data['time'], run, data['session'], data['skill'], test['shift_speed'], test['max_gaps'], best_score, myObserver.event.climb_count])
 
 
     if data["session"] == "ai-train":
@@ -120,6 +120,6 @@ for run in data["run"]:
                     env.reset()
 
             print(best_score)
-            _save_results([str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')), data['time'], run, data['session'], data['skill'], test['shift_speed'], test['max_gaps'], best_score])
+            _save_results([str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')), data['time'], run, data['session'], data['skill'], test['shift_speed'], test['max_gaps'], best_score, myObserver.event.climb_count])
 
             env.reset()
