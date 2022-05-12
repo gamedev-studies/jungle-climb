@@ -36,6 +36,7 @@ for run in data["run"]:
 
         for test in data["tests"]:            
             best_score = 0
+            best_climb_count = 0
             t_end = time.time() + data['time']
             while time.time() < t_end: 
                 game = ClimberGame(shift_speed=test['shift_speed'], max_gaps=test['max_gaps'], buildno=test['id'])
@@ -47,11 +48,14 @@ for run in data["run"]:
                     if ClimberGame.run_logic(game, -1) >= 0:
                         if myObserver.event.score > best_score:
                             best_score = myObserver.event.score
+
+                        if myObserver.event.climb_count > best_climb_count:
+                            best_climb_count = myObserver.event.climb_count
                         break              
             
             # save the results only after warming up
             if not data["warmup"]:
-                _save_results([str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')), data['time'], run, data['session'], data['skill'], test['shift_speed'], test['max_gaps'], best_score, myObserver.event.climb_count])
+                _save_results([str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')), data['time'], run, data['session'], data['skill'], test['shift_speed'], test['max_gaps'], best_score, best_climb_count])
 
 
     if data["session"] == "ai-train":
@@ -90,6 +94,7 @@ for run in data["run"]:
             myObserver = Observer()
             env.game.attach(myObserver)
             best_score = 0
+            best_climb_count = 0
 
             obs = env.reset()
 
@@ -114,12 +119,15 @@ for run in data["run"]:
                 if myObserver.event.score > best_score:
                     best_score = myObserver.event.score
 
+                if myObserver.event.climb_count > best_climb_count:
+                    best_climb_count = myObserver.event.climb_count
+
                 env.render()
 
                 if done:
                     env.reset()
 
-            print(best_score)
-            _save_results([str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')), data['time'], run, data['session'], data['skill'], test['shift_speed'], test['max_gaps'], best_score, myObserver.event.climb_count])
+            print(best_score, best_climb_count)
+            _save_results([str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')), data['time'], run, data['session'], data['skill'], test['shift_speed'], test['max_gaps'], best_score, best_climb_count])
 
             env.reset()
