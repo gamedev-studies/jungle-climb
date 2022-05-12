@@ -483,27 +483,28 @@ class ClimberGame():
                     self.player.stop(pressed_keys)
                     
         # react to commands from agent
-        has_jumped = False
         if action == 0:
             self.player.go_right()
         elif action == 1:
             self.player.go_left()
         elif action == 2:
             self.player.jump(self.game_config['jump_sound'])
-            has_jumped = True
         self.player.update(self.delta_time)
         #print(action, '=>', self.player.rect.left)
 
         gap_x1, gap_x2 = self.get_gap_position() 
         #self.draw_gap(gap_x1, 100)
         #self.draw_gap(gap_x2, 200)
-        #print("gaps 1 and 2: ", gap_x1, gap_x2)
 
         jump_status = self.get_jump_status()
-        if jump_status == "climbed":
-            self.climb_count += 1
-        #print("jump_status", jump_status)
-        #print("climb_count", self.climb_count)
+
+        if self.score > 0:
+            if jump_status == "climbed":
+                self.climb_count += 1
+        else:
+            # avoid computing multiple jumps if you keep going back and forth on the 1st platform
+            if jump_status == "climbed":
+                self.climb_count = 1
 
         self.current_time = datetime.datetime.now()
         self.time_elapsed = (self.current_time - self.time_game_started).total_seconds()
