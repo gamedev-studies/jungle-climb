@@ -1,6 +1,6 @@
 {
-    "session":"ai-play",
-    "skill":"novice",
+    "session":"ai-train",
+    "skill":"pro",
     "time":180,
     "warmup":false,
     "run":[1,2],
@@ -8,8 +8,8 @@
     [
         {
             "id":"build-1",
-            "train":false,
-            "shift_speed":2,
+            "train":true,
+            "shift_speed":1,
             "max_gaps":1
         },
         {
@@ -20,8 +20,8 @@
         },
         {
             "id":"build-3",
-            "train":false,
-            "shift_speed":1,
+            "train":true,
+            "shift_speed":2,
             "max_gaps":2
         }
     ]
