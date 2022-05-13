@@ -421,6 +421,27 @@ class ClimberGame():
         marker = pygame.draw.rect(self.SCREEN, (255,0,0), pygame.Rect(gap_x, self.player.rect.top - y_dist, 100, 30))
         pygame.display.update(marker)
 
+    def get_jump_status(self):
+        player_y = self.player.rect.top
+        cur_on_ground = self.player.on_ground
+        status = ""
+        if not cur_on_ground and self.prev_on_ground: # if player went from ground to air
+            self.player_y_before_jump = player_y
+            status = "ascending"
+        elif not cur_on_ground and not self.prev_on_ground: # if player is on air
+            status = "on_air"
+        elif cur_on_ground and not self.prev_on_ground: # if player came from air to ground
+            #print(player_y, self.player_y_before_jump)
+            #print(abs(player_y - self.player_y_before_jump))
+            if player_y < self.player_y_before_jump and abs(player_y - self.player_y_before_jump) > 35: # if player is one platform up
+                status = "climbed"
+            else:
+                status = "landed"
+            self.player_y_before_jump = player_y
+        else: # if player stayed on the ground
+            status = "on_ground"
+        self.prev_on_ground = cur_on_ground
+        return status
     def run_logic(self, action):
         # TODO: make background with vines
         if not pygame.mouse.get_focused():
@@ -462,21 +483,28 @@ class ClimberGame():
                     self.player.stop(pressed_keys)
                     
         # react to commands from agent
-        has_jumped = False
         if action == 0:
             self.player.go_right()
         elif action == 1:
             self.player.go_left()
         elif action == 2:
             self.player.jump(self.game_config['jump_sound'])
-            has_jumped = True
         self.player.update(self.delta_time)
         #print(action, '=>', self.player.rect.left)
 
         gap_x1, gap_x2 = self.get_gap_position() 
-        self.draw_gap(gap_x1, 100)
-        self.draw_gap(gap_x2, 200)
-        #print("gaps 1 and 2: ", gap_x1, gap_x2)
+        #self.draw_gap(gap_x1, 100)
+        #self.draw_gap(gap_x2, 200)
+
+        jump_status = self.get_jump_status()
+
+        if self.score > 0:
+            if jump_status == "climbed":
+                self.climb_count += 1
+        else:
+            # avoid computing multiple jumps if you keep going back and forth on the 1st platform
+            if jump_status == "climbed":
+                self.climb_count = 1
 
         self.current_time = datetime.datetime.now()
         self.time_elapsed = (self.current_time - self.time_game_started).total_seconds()
@@ -486,10 +514,12 @@ class ClimberGame():
                 pygame.mixer.Channel(0).stop()
                 self.music_playing = False
             event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, self.time_elapsed)
+            event.climb_count = self.climb_count
             self.notify(event)
             return self.score
         self.delta_time = self.clock.tick(60) / 1000  # milliseconds -> seconds
         event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2,  self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, self.time_elapsed)
+        event.climb_count = self.climb_count
         self.notify(event)
         self.render()
 
@@ -533,6 +563,8 @@ class ClimberGame():
         self.music_playing = False
         self.delta_time = 0
         self.blocks_above_1 = np.array([])
+        self.prev_on_ground = True
+        self.climb_count = 0
 
         # original config file added by the dev
         # since it is not so important for agent training, I have hardcoded it
@@ -601,5 +633,7 @@ class ClimberGame():
         self.time_elapsed = 0
         self.shift_threshold = 0.75 * self.SCREEN_HEIGHT
         gap_x1, gap_x2 = self.get_gap_position()
+        self.player_y_before_jump = self.player.rect.top
         event = Event(self.player.rect.left, self.player.rect.top, gap_x1, gap_x2, self.music_playing, self.player.is_on_ground(), self.player.get_facing_side(), self.score, self.time_elapsed)
+        event.climb_count = self.climb_count
         self.notify(event)
